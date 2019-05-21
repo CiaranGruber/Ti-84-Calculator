@@ -9,3 +9,5 @@ For OIRAM, the following is required:
 [2nd][0] > Choose Asm( > [prgm] > Choose OIRAM > [enter]
 
 Note: Programs should be installed through the Ti Connect CE program
+
+See inside folders to download specific programs
