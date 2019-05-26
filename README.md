@@ -42,5 +42,5 @@ Notes:
 These are just some of the available TI calculator links available to use
 * [TI-84 Plus CE Update](https://education.ti.com/en/software/update/84-ce-software-update)
 * [TI-84 Calc Wiz](https://www.ti84calcwiz.com/) - A place for apps, etc
-* [TI-Basic Developer](tibasicdev.wikidot.com) is a good place for learning the programming among other things
+* [TI-Basic Developer](http://tibasicdev.wikidot.com) is a good place for learning the programming among other things
 Note: Other than these sites, the best thing to do generally is type your query into google and you'll often get the best links
