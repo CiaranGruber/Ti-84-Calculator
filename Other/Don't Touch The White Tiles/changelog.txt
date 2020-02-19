@@ -1,0 +1,6 @@
+Version 1.0
+- Original, enjoy!
+
+Version 1.1
+- Added RELAY mode
+- Darkened text color, on request
