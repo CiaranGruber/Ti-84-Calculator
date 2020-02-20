@@ -29,7 +29,8 @@ Various apps may have unusual names that would benefit from being changed. The f
 * SPAZE -> INVADERS
 * CMONSTER -> BREAKOUT
 * OIRAM -> MARIO
-* ZMBCHS -> ZOMBCHS
+* ZMBCHS -> ZOMBCHAS
+* ADVENT -> CAVEADV (Reduces confusion with ADVENTUR) (Is a part of Colossal Cave Adventure)
 
 ### Apps not included
 Due to various reasons, several apps have not been included in the "All Files" folder. These may be due to large sizes, perceived low-quality or due to a large amount of customisation in terms of app install
@@ -41,7 +42,7 @@ Programs >100KB have not been included in the "All Files" folder due to large si
 
 #### Extensive Customisation
 * TI-Boy
-* 2D Racer
+* 2D Racer (Also low-quality)
 
 #### Low-quality
 * SwipeCE
