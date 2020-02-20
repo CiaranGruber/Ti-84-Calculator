@@ -1,6 +1,0 @@
-V.1.0
-- Game Mechanics
-- Updated Buy/Sell GUI
-- Saving and Loading
-- Buying and Selling
-- Allstocks, Historical, and Personal stock views
