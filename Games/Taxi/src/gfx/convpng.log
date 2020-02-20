@@ -1,0 +1,20 @@
+Opened convpng.ini
+
+--- Group sprite_gfx (C) ---
+Building palette with [256] available indices ...
+Built palette with [9] indices.
+Palette quality : 100.00%
+Transparent Color Index : 0
+Transparent Color : 0xFFFF
+7:
+ street : 100.00%
+ street_red : 100.00%
+ x : 100.00%
+ taxi_front : 100.00%
+ taxi_rear : 100.00%
+ taxi_right : 100.00%
+ passenger : 100.00%
+
+Converted in 0 s
+
+Finished!

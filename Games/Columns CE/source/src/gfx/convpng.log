@@ -1,0 +1,169 @@
+Opened convpng.ini
+
+--- Global Palette mainpalette.png ---
+Building palette with [256] available indices ...
+Built palette with [118] indices.
+Palette quality : 100.00%
+Wrote palette image (mainpalette.png)
+
+--- Global Palette tilepalette.png ---
+Building palette with [256] available indices ...
+Built palette with [13] indices.
+Palette quality : 100.00%
+Wrote palette image (tilepalette.png)
+
+--- Group tiles_gfx (C) ---
+Using defined palette mainpalette.png ...
+4:
+ gems : converted!
+ gems_tile_0_compressed (258 > 112 bytes)
+ gems_tile_1_compressed (258 > 98 bytes)
+ gems_tile_2_compressed (258 > 122 bytes)
+ gems_tile_3_compressed (258 > 111 bytes)
+ gems_tile_4_compressed (258 > 91 bytes)
+ gems_tile_5_compressed (258 > 130 bytes)
+ explosion : converted!
+ explosion_tile_0_compressed (258 > 48 bytes)
+ explosion_tile_1_compressed (258 > 70 bytes)
+ explosion_tile_2_compressed (258 > 97 bytes)
+ explosion_tile_3_compressed (258 > 81 bytes)
+ explosion_tile_4_compressed (258 > 67 bytes)
+ explosion_tile_5_compressed (258 > 52 bytes)
+ explosion_tile_6_compressed (258 > 33 bytes)
+ flashgems : converted!
+ flashgems_tile_0_compressed (258 > 69 bytes)
+ flashgems_tile_1_compressed (258 > 84 bytes)
+ flashgems_tile_2_compressed (258 > 73 bytes)
+ flashgems_tile_3_compressed (258 > 72 bytes)
+ flashgems_tile_4_compressed (258 > 56 bytes)
+ flashgems_tile_5_compressed (258 > 61 bytes)
+ flashgems_tile_6_compressed (258 > 65 bytes)
+ flashgems_tile_7_compressed (258 > 56 bytes)
+ flashgems_tile_8_compressed (258 > 78 bytes)
+ flashgems_tile_9_compressed (258 > 91 bytes)
+ flashgems_tile_10_compressed (258 > 80 bytes)
+ flashgems_tile_11_compressed (258 > 79 bytes)
+ flashgems_tile_12_compressed (258 > 70 bytes)
+ flashgems_tile_13_compressed (258 > 74 bytes)
+ flashgems_tile_14_compressed (258 > 72 bytes)
+ flashgems_tile_15_compressed (258 > 69 bytes)
+ flashgems_tile_16_compressed (258 > 81 bytes)
+ flashgems_tile_17_compressed (258 > 87 bytes)
+ flashgems_tile_18_compressed (258 > 82 bytes)
+ flashgems_tile_19_compressed (258 > 82 bytes)
+ flashgems_tile_20_compressed (258 > 69 bytes)
+ flashgems_tile_21_compressed (258 > 74 bytes)
+ flashgems_tile_22_compressed (258 > 75 bytes)
+ flashgems_tile_23_compressed (258 > 66 bytes)
+ flashgems_tile_24_compressed (258 > 74 bytes)
+ flashgems_tile_25_compressed (258 > 84 bytes)
+ flashgems_tile_26_compressed (258 > 82 bytes)
+ flashgems_tile_27_compressed (258 > 76 bytes)
+ flashgems_tile_28_compressed (258 > 69 bytes)
+ flashgems_tile_29_compressed (258 > 77 bytes)
+ flashgems_tile_30_compressed (258 > 67 bytes)
+ flashgems_tile_31_compressed (258 > 67 bytes)
+ flashgems_tile_32_compressed (258 > 65 bytes)
+ flashgems_tile_33_compressed (258 > 81 bytes)
+ flashgems_tile_34_compressed (258 > 76 bytes)
+ flashgems_tile_35_compressed (258 > 67 bytes)
+ flashgems_tile_36_compressed (258 > 52 bytes)
+ flashgems_tile_37_compressed (258 > 57 bytes)
+ flashgems_tile_38_compressed (258 > 61 bytes)
+ flashgems_tile_39_compressed (258 > 55 bytes)
+ flashgems_tile_40_compressed (258 > 75 bytes)
+ flashgems_tile_41_compressed (258 > 88 bytes)
+ flashgems_tile_42_compressed (258 > 77 bytes)
+ flashgems_tile_43_compressed (258 > 78 bytes)
+ flashgems_tile_44_compressed (258 > 64 bytes)
+ flashgems_tile_45_compressed (258 > 69 bytes)
+ flashgems_tile_46_compressed (258 > 70 bytes)
+ flashgems_tile_47_compressed (258 > 64 bytes)
+ magicgems : converted!
+ magicgems_tile_0_compressed (258 > 119 bytes)
+ magicgems_tile_1_compressed (258 > 119 bytes)
+ magicgems_tile_2_compressed (258 > 119 bytes)
+ magicgems_tile_3_compressed (258 > 119 bytes)
+ magicgems_tile_4_compressed (258 > 119 bytes)
+ magicgems_tile_5_compressed (258 > 119 bytes)
+
+--- Group sprites_gfx (C) ---
+Using defined palette mainpalette.png ...
+21:
+ cursor : converted! (258 > 20 bytes)
+ grid : converted! (258 > 17 bytes)
+ bg_btm3d : converted! (418 > 44 bytes)
+ bg_btm4d : converted! (522 > 47 bytes)
+ bg_btm5d : converted! (613 > 46 bytes)
+ bg_btm8d : converted! (912 > 49 bytes)
+ bg_central : converted! (903 > 31 bytes)
+ bg_next : converted! (1042 > 24 bytes)
+ bg_score : converted! (942 > 49 bytes)
+ bg_top3d : converted! (405 > 44 bytes)
+ bg_top4d : converted! (509 > 46 bytes)
+ bg_top5d : converted! (613 > 46 bytes)
+ bg_top8d : converted! (912 > 48 bytes)
+ banner : converted! (17922 > 2471 bytes)
+ menutile : converted! (5122 > 887 bytes)
+ menuborder : converted! (66 > 22 bytes)
+ p1 : converted! (66 > 31 bytes)
+ p2 : converted! (66 > 30 bytes)
+ downarrow : converted! (66 > 23 bytes)
+ arcadeselect : converted! (6642 > 463 bytes)
+ hsborder : converted! (1026 > 128 bytes)
+
+--- Group bg_gfx (C) ---
+Using defined palette tilepalette.png ...
+2:
+ greentile : converted! (1026 > 298 bytes)
+ cyantile : converted! (1026 > 298 bytes)
+
+--- Group score_gfx (C) ---
+Using defined palette tilepalette.png ...
+1:
+ score : converted!
+ score_tile_0_compressed (130 > 37 bytes)
+ score_tile_1_compressed (130 > 37 bytes)
+ score_tile_2_compressed (130 > 41 bytes)
+ score_tile_3_compressed (130 > 53 bytes)
+ score_tile_4_compressed (130 > 52 bytes)
+ score_tile_5_compressed (130 > 48 bytes)
+ score_tile_6_compressed (130 > 46 bytes)
+ score_tile_7_compressed (130 > 41 bytes)
+ score_tile_8_compressed (130 > 46 bytes)
+ score_tile_9_compressed (130 > 47 bytes)
+ score_tile_10_compressed (130 > 19 bytes)
+
+--- Group char_gfx (C) ---
+Using defined palette mainpalette.png ...
+15:
+ s__apo : converted! (130 > 26 bytes)
+ s__exc : converted! (130 > 33 bytes)
+ s_A : converted! (130 > 48 bytes)
+ s_D : converted! (130 > 57 bytes)
+ s_E : converted! (130 > 42 bytes)
+ s_G : converted! (130 > 61 bytes)
+ s_I : converted! (130 > 30 bytes)
+ s_M : converted! (130 > 53 bytes)
+ s_N : converted! (130 > 53 bytes)
+ s_O : converted! (130 > 61 bytes)
+ s_R : converted! (130 > 63 bytes)
+ s_T : converted! (146 > 44 bytes)
+ s_U : converted! (130 > 36 bytes)
+ s_V : converted! (130 > 46 bytes)
+ s_Y : converted! (130 > 45 bytes)
+
+--- Group title_gfx (C) ---
+Using defined palette mainpalette.png ...
+3:
+ title1 : converted! (76800 > 9420 bytes)
+ title2 : converted! (76800 > 10172 bytes)
+ colortest : converted! (76800 > 285 bytes)
+
+Converted in 10 s
+
+[warning] image quality might be too low.
+please try grouping similar images, reducing image colors, 
+or selecting a better palette if conversion is not ideal.
+
+Finished!

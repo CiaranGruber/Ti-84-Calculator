@@ -1,0 +1,323 @@
+[i]DTTWT
+[i]"CCCCCCCCFFFFCCCCCBBBBBBBF333BBBCCBBBBBBBF333BBBCCBBBBBBBF333BBBCCBBBFFFFBBBBBBBCCBBBF333BBBBBBBCCBBBF333BBBBBBBCCBBBF333BBBBBBBCCBBBBBBBBBBBFFFFCBBBBBBBBBBBF333CBBBBBBBBBBBF333CBBBBBBBBBBBF333FFFFBBBBBBBBBBBCF333BBBBBBBBBBBCF333BBBBBBBBBBBCF333CCCCCCCCCCCC"
+[i]Don't Touch The W\hite Tiles v1.1
+
+Alloc(5->PTILE
+Alloc(18->PHA
+Alloc(8->PHB
+Alloc(12->PHC
+Alloc(12->PHD
+0->FC
+CloseAll
+Open("DTTWTSCR","r+"->SLOT
+If SLOT
+	Read(PHA,1,50,SLOT
+End
+CloseAll
+
+SetTextTransparentColor(254:SetTextBGColor(254:SetTransparentColor(254
+Begin
+
+0->MP
+0->MODE:0->SMODE
+Lbl MENU
+0->EX->PL->KEY
+While 1
+	getKey->KEY
+	If KEY=1:Call DOWN:End
+	If KEY=2 or KEY=15:Call LEFT:End
+	If KEY=3 or KEY=9:Call RIGHT:End
+	If KEY=4:Call UP:End
+	
+	If PL:Goto PLAY:End
+	If EX:Goto EXIT:End
+	Call MENUDRAW
+End
+
+Lbl DOWN
+If MP=0:remainder(MODE+1,5)->MODE:End
+If MP=1
+	If MODE=0:remainder(SMODE+1,6)->SMODE:End
+	If MODE=1:remainder(SMODE+1,4)->SMODE:End
+	If MODE=2:remainder(SMODE+1,6)->SMODE:End
+	If MODE=3:remainder(SMODE+1,6)->SMODE:End
+	If MODE=4:remainder(SMODE+1,2)->SMODE:End
+End
+Return
+Lbl LEFT
+If MP=0 and KEY=15:1->EX:End
+If MP=1:0->MP:0->SMODE:End
+Return
+Lbl RIGHT
+If MP=1 and KEY=9
+	If MODE=0
+		25*(remainder(SMODE,3)=0)+50*remainder(SMODE,3)->GOAL
+		If SMODE<3:0->FC:Else:1->FC:End
+	End
+	If MODE=1
+		If SMODE<2:0->FC:Else:1->FC:End
+	End
+	If MODE=2
+		32768*(15*(remainder(SMODE,3)=0)+30*remainder(SMODE,3))->TMRL
+		If SMODE<3:0->FC:Else:1->FC:End
+	End
+	If MODE=3
+		327680->TMRL
+		If SMODE<3:0->FC:Else:1->FC:End
+	End
+	If MODE=4
+		If SMODE=0:0->FC:Else:1->FC:End
+	End
+	1->PL
+End
+If MP=0:1->MP:End
+Return
+Lbl UP
+If MP=0:remainder(MODE+4,5)->MODE:End
+If MP=1
+	If MODE=0:remainder(SMODE+5,6)->SMODE:End
+	If MODE=1:remainder(SMODE+3,4)->SMODE:End
+	If MODE=2:remainder(SMODE+5,6)->SMODE:End
+	If MODE=3:remainder(SMODE+5,6)->SMODE:End
+	If MODE=4:remainder(SMODE+1,2)->SMODE:End
+End
+Return
+
+Lbl MENUDRAW
+239->CLRA
+If MODE=1:254->CLRA:End
+If MODE=2:183->CLRA:End
+If MODE=3:222->CLRA:End
+If MODE=4:191->CLRA:End
+SetDraw(1
+FillScreen(255
+SetTextFGColor(74:SetTextScale(1,2
+For(I,0,4:SetTextXY(4+64*I,15:PrintString(sub("Don'tTouchThe  W\hiteTiles",5*I,5:End
+SetColor(CLRA:FillRectangle_NoClip(0,224,320,16:FillRectangle_NoClip(0,129,320,9
+SetColor(181
+For(X,0,4:VertLine(X*64,0,240:VertLine(X*64+63,0,240:End
+FillRectangle_NoClip(0,236,320,4:FillRectangle_NoClip(0,0,320,11
+SetColor(CLRA:FillRectangle_NoClip(0,11,320,2
+SetTextScale(1,1
+For(I,0,4:SetTextXY(4,130-(MODE-I)*10:PrintString(sub("CLASSICARCADE ZEN    RELAY  FREE   ",7*I,7:End
+If MP=1
+	For(I,0,5:SetTextXY(68,130-(SMODE-I)*10:PrintString(sub("25 4C  50 4C  100 4C 25 5C  50 5C  100 5C NORM 4CHARD 4CNORM 5CHARD 5C              15 4C  30 4C  60 4C  15 5C  30 5C  60 5C  +8 4C  +7 4C  +6 4C  +8 5C  +7 5C  +6 5C  4C     5C                                 ",MODE*42+7*I,7:End
+	If MODE!=4:SetTextXY(130,120:PrintString("Hi-Score":End
+	SetTextXY(132,130
+	If MODE=0:***{PHA+3*SMODE}->A:Call XDRAWTIME:End
+	If MODE=1:PrintInt(**{PHB+2*SMODE},4:End
+	If MODE=2:PrintInt(**{PHC+2*SMODE},4:End
+	If MODE=3:PrintInt(**{PHD+2*SMODE},4:End
+End
+For(I,0,4:SetTextXY(4+64*I,226:PrintString(sub("(C) 2018BasicTH         Version:1.1     ",I*8,8:End
+SwapDraw
+Return
+
+Lbl PLAY
+0->EX->WI->LO->START->SCORE->FRAME->KEY->DH->EN
+1->PROG
+6+2*remainder(SMODE,2->SP
+If MODE=3:20->GOAL:32786*(8-remainder(SMODE,3->TMRL:End
+For(I,0,4:Call XNEWTILE:End
+
+While 1
+	getKey->KEY
+	If KEY=15:1->EX:End
+	If LKEY
+		LKEY-1->FKEY:Call PRESS
+	Else
+		If KEY>=49 and KEY<=53:53-KEY->FKEY:Call PRESS:End
+	End
+	
+	Call UPDATE
+	If EX=2:Goto EXIT:End
+	If EX:Goto MENU:End
+	If WI:Goto WIN:End
+	If LO:Goto LOSE:End
+	Call DRAW
+End
+
+Lbl PRESS
+If FKEY=4 and not(FC:Return:End
+If not(START:startTmr->TMR:1->START:End
+If MODE=0 or MODE=2 or MODE=3 or MODE=4
+If DH>0:FKEY+1->LKEY:Return:End
+	0->LKEY
+	If FKEY=*{PTILE+1}
+		64->DH:SCORE+1->SCORE
+		Call XNEWTILE
+	Else:1->LO:End
+End
+If MODE=1
+	If PROG>3:Return:End
+	If FKEY=*{PTILE+PROG}
+		SCORE+1->SCORE:PROG+1->PROG
+		If remainder(SMODE,2)=0
+			If SCORE>(SP*(5*SP-5)-100)/2:SP+1->SP:End
+		Else
+			If SCORE>(SP*(5*SP-35))/2:SP+1->SP:End
+		End
+	Else:1->LO:End
+End
+Return
+
+Lbl UPDATE
+FRAME+1->FRAME
+If not(START:Return:End
+If checkTmr(TMR)>9830400:2->EX:End
+If MODE=0 or MODE=2 or MODE=3 or MODE=4
+	If DH>0:DH-16->DH:End
+	If SCORE=GOAL and DH=0 and MODE=0:1->WI:End
+	If SCORE=GOAL and DH=0 and MODE=3:GOAL+35+5*START->GOAL:TMRL+32786*(8-remainder(SMODE,3->TMRL:START+1->START:End
+	If checkTmr(TMR)>TMRL and (MODE=2 or MODE=3):2->WI:End
+	Return
+End
+If MODE=1
+	If DH<1+SP/2
+		Call XNEWTILE
+		DH+64->DH:PROG-1->PROG
+	End
+	DH-remainder(FRAME*SP,2)-SP/2->DH
+	If PROG=0 and DH<=16:16->DH:2->LO:End
+	Return
+End
+Return
+
+Lbl WIN
+If MODE=0:checkTmr(TMR)->B:End
+Call DRAW
+Pause 800
+1->EN:Call DRAW
+If MODE=0 and B<***{PHA+3*SMODE} or not(***{PHA+3*SMODE}:B->***{PHA+3*SMODE}:End
+If MODE=2 and SCORE>**{PHC+2*SMODE}:SCORE->**{PHC+2*SMODE}:End
+If MODE=3 and SCORE>**{PHD+2*SMODE}:SCORE->**{PHD+2*SMODE}:End
+Goto END
+
+Lbl LOSE
+If MODE=0:checkTmr(TMR)->B:End
+If MODE=2 or MODE=3:TMRL-checkTmr(TMR)->B:End
+Call DRAW
+Pause 800
+1->EN:If MODE=0:2->EN:End:Call DRAW
+If MODE=1 and SCORE>**{PHB+2*SMODE}:SCORE->**{PHB+2*SMODE}:End
+If MODE=2 and SCORE>**{PHC+2*SMODE}:SCORE->**{PHC+2*SMODE}:End
+If MODE=3 and SCORE>**{PHD+2*SMODE}:SCORE->**{PHD+2*SMODE}:End
+Goto END
+
+Lbl END
+0->KEY
+While 1
+	getKey->KEY
+	If KEY=9:Goto PLAY:End
+	If KEY=15:Goto MENU:End
+End
+
+Lbl DRAW
+239->CLRA
+If MODE=1:254->CLRA:End
+If MODE=2:183->CLRA:End
+If MODE=3:222->CLRA:End
+If MODE=4:191->CLRA:End
+If LO:227->CLRA:End
+SetDraw(1
+FillScreen(255
+SetColor(CLRA:FillRectangle_NoClip(0,224,320,16
+SetColor(181
+For(X,0,4:VertLine(X*64,0,240:VertLine(X*64+63,0,240:End
+For(I,0,4
+	SetColor(0
+	If (MODE=0 or MODE=2 or MODE=3 or MODE=4) and not(I:SetColor(74:End
+	If MODE=1 and I<PROG:SetColor(74:End
+	If ((I=PROG and MODE=1) or (I=1 and MODE!=1)) and LO:SetColor(64:End
+	If (MODE=2 or MODE=3) and WI:SetColor(74:End
+	If *{PTILE+I}<=4
+		FillRectangle(*{PTILE+I}*64,240-I*64-DH,64,64
+		SetColor(181:Rectangle(*{PTILE+I}*64,240-I*64-DH,64,64
+	End
+End
+For(I,0,4
+	If MODE=3 and GOAL-SCORE=I:SetColor(CLRA:FillRectangle(0,238-I*64-DH,320,4:End
+	If *{PTILE+1}=I:SetTextFGColor(181:Else:SetTextFGColor(74:End
+	If not(START) and (FC or I<4):SetTextXY(4+64*I,226:PrintString(sub("[y=]    [window][zoom]  [trace] [graph] ",I*8,8:End
+End
+If LO=1
+	SetColor(160
+	If MODE=0 or MODE=2 or MODE=3 or MODE=4
+		FillRectangle_NoClip(64*FKEY,176,64,64
+		SetColor(181:Rectangle(64*FKEY,176,64,64
+	End
+	If MODE=1
+		FillRectangle(64*FKEY,240-PROG*64-DH,64,64
+		SetColor(181:Rectangle(64*FKEY,240-PROG*64-DH,64,64
+	End
+End
+SetColor(181:FillRectangle_NoClip(0,236,320,4:FillRectangle_NoClip(0,0,320,11
+SetColor(CLRA:If not(FC:FillRectangle_NoClip(257,12,62,224:End
+FillRectangle_NoClip(0,11,320,2
+SetTextFGColor(0:SetTextScale(1,1
+SetTextXY(4,2:PrintString("Tiles: ":PrintInt(SCORE,4-not(MODE
+If MODE=0 or MODE=2 or MODE=3
+	If MODE!=2:PrintString("/":PrintInt(GOAL,4-not(MODE:End
+	SetTextXY(134,2
+	checkTmr(TMR)->A
+	If MODE=0 and not(START:0->A:End
+	If MODE=0 and (LO or WI:B->A:End
+	If MODE=2 or MODE=3
+		TMRL-checkTmr(TMR->A
+		If not(START:TMRL->A:End
+		If LO:B->A:End
+		If WI:0->A:End
+	End
+	Call XDRAWTIME
+End
+If EN
+	SetColor(181:FillRectangle_NoClip(94,80,132,80
+	SetColor(CLRA:FillRectangle_NoClip(96,82,128,76
+	SetColor(255:FillRectangle_NoClip(98,84,124,72
+	SetTextFGColor(74:SetTextXY(100,86
+	PrintString(sub("CLASSICARCADE ZEN    RELAY  FREE   ",7*MODE,7
+	SetTextXY(166,86
+	PrintString(sub("25 4C  50 4C  100 4C 25 5C  50 5C  100 5C NORM 4CHARD 4CNORM 5CHARD 5C              15 4C  30 4C  60 4C  15 5C  30 5C  60 5C  +8 4C  +7 4C  +6 4C  +8 5C  +7 5C  +6 5C  4C     5C     ",42*MODE+7*SMODE,7
+	If MODE!=4
+		SetTextXY(100,106:PrintString("Hi-Score: "
+		SetTextXY(166,106
+		If MODE=0:***{PHA+3*SMODE}->A:Call XDRAWTIME:End
+		If MODE=1:PrintInt(**{PHB+2*SMODE},4:End
+		If MODE=2:PrintInt(**{PHC+2*SMODE},4:End
+		If MODE=3:PrintInt(**{PHD+2*SMODE},4:End
+	End
+	SetTextXY(100,116-10*(MODE=4:PrintString("Score: "
+	SetTextXY(166,116-10*(MODE=4
+	If EN!=2
+		If MODE=0:B->A:Call XDRAWTIME:End
+		If MODE=1 or MODE=2 or MODE=3 or MODE=4:PrintInt(SCORE,4:End
+	Else:PrintString("--:--:--":End
+	If (MODE=0 and EN!=2 and (B<***{PHA+3*SMODE} or (B and not(***{PHA+3*SMODE}))) or (MODE=1 and SCORE>**{PHB+2*SMODE}) or (MODE=2 and SCORE>**{PHC+2*SMODE}) or (MODE=3 and SCORE>**{PHD+2*SMODE}:SetColor(181:HorizLine(166,124,54:End
+	SetTextXY(100,136:PrintString("[enter]: Try again
+	SetTextXY(100,146:PrintString("[clear]:  Quit
+End
+SwapDraw
+Return
+
+Lbl XNEWTILE
+For(J,0,3:*{PTILE+J+1}->*{PTILE+J}:End
+4194444-839000*FC->DENOM
+Lbl NOPE
+rand/DENOM->*{PTILE+4}
+If *{PTILE+4}=*{PTILE+3} and *{PTILE+4}=*{PTILE+2}:Goto NOPE:End
+If MODE=0 and SCORE+4>GOAL:5->*{PTILE+4}:End
+Return
+Lbl XDRAWTIME
+PrintInt(A/1966080,2:PrintString(":"
+PrintInt(remainder(A/32768,60),2:PrintString(":"
+PrintInt(100*remainder(A,32768)/32768,2
+Return
+
+Lbl EXIT
+CloseAll
+Delete("DTTWTSCR
+Open("DTTWTSCR","a+"->SLOT
+Write(PHA,1,50,SLOT
+SetArchiveStatus(1,SLOT
+CloseAll
+det(1

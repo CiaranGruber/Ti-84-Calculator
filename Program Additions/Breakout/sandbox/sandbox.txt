@@ -1,0 +1,11 @@
+Sandbox levels for CMonster for TI-84 Plus C Silver Edition / TI-84 Plus CE
+by Patrick Davidson 
+
+eeulplek@hotmail.com
+http://www.ocf.berkeley.edu/~pad/
+
+The same level file will work on both the TI-84 Plus Silver Edition and TI-84
+Plus CE.  You must have version 1004 or higher of CMonster on your calculator
+to use these external levels.  This file contains 8 levels.  The external
+level file can be used from either RAM or archive.  To play the external
+levels, run CMonster as usual and press APPS to open the level selection menu.

@@ -1,0 +1,2 @@
+Simply send PORTALCP to your TI-84 PCE to add the texture pack.
+If you would like to make your own, go to the PortalReturnsCE file in your downloads, then go to Sprite and Tile editor and look at the readme to learn how to make your own texture pack.

@@ -1,0 +1,7 @@
+Hello!
+
+This is a level pack deigned for Oiram
+
+There is the first world, Wooden Plateau,the second, Wet Shores, and the third, Wispy Clouds and more.
+
+Add the .8xv file(s) to your archive and open Oiram and it should be there. 
