@@ -31,6 +31,7 @@ Due to various reasons, several apps may not been included in the "All Files" fo
 * Large sizes
 * Perceived low-quality
 * Or a large amount of customisation when installing the app
+* Are proof-of-concept programs
 
 ## Using the Apps
 Standard Instructions:
@@ -44,6 +45,9 @@ If Cesium is installed:
 3. Select applications using the now-opened Cesium shell
 
 Instructions may be found either in the program or if not, navigate to the "Other" folder, find the game and read the Readme file if available. If neither is there, try playing around with controls to learn them.
+
+### Programs not to be run
+Some programs are parts of other programs and are not designed to be run as standalone apps. While these usually don't affect the calculator, it is best to leave these alone.
 
 ## Additions to Programs
 Various programs allow for the addition of level packs or textures to be added to their default functionality. Each of these is explained within each program part found in the "Program Additions" folder.

@@ -1,0 +1,17 @@
+Rotate/Zoom Demo for TI-84 Plus CE / TI-83 Premium CE
+by Patrick Davidson 
+
+eeulplek@hotmail.com
+http://www.ocf.berkeley.edu/~pad/
+
+This is a simple "demo" of rotating/zooming a 16-color image on the calculator.
+It runs full screen at about 16 frames per second.
+
+This is a plain asm program.  You can transfer it to the calculator by sending
+the ROTZOOM.8XP file to your calculator using TI Connect CE (or other software
+that communicates with the calculator).  Run it by entering the command 
+Asm(prgmROTZOOM on the home screen.  Press CLEAR to exit.
+
+If you are using TI-Connect CE to transfer the game, please note that you
+should send the program using the Calculator Explorer section of TI-Connect CE.
+The program cannot be opened by the open menu item or in the Program Editor.

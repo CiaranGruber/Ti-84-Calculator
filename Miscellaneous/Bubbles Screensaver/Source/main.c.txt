@@ -1,0 +1,67 @@
+////////////////////////////////////////
+// { PROGRAM NAME } { VERSION }
+// Author:
+// License:
+// Description:
+////////////////////////////////////////
+
+/* Keep these headers */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <tice.h>
+/* Standard headers - it's recommended to leave them included */
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+/* Other available headers: stdarg.h, setjmp.h, assert.h, ctype.h, float.h, iso646.h, limits.h, errno.h*/
+#include <lib/ce/graphx.h>
+
+#include <sprites.h>
+
+int i, balloon_y=240, x, rand_num;
+bool end=0;
+/* Put function prototypes here */
+/* Put all your code here */
+void main(void) {
+    gfx_Begin(gfx_8bpp);
+    gfx_SetColor(255);
+    rand_num=randInt(0,1);
+    if (rand_num==0){
+        x=randInt(0,27);
+    }else{
+        x=randInt(244,271);
+    }
+    gfx_SetPalette( sprites_pal, sizeof(sprites_pal), 0);
+    gfx_FillScreen(255);
+    gfx_Sprite( PARTY, 76, 100);
+    gfx_Sprite( Balloon, 0, balloon_y );
+    while(end==0){
+        while(balloon_y>-187){
+            for(i=0;i<8;i++){
+                gfx_Sprite( Balloon, x, balloon_y );
+                gfx_Sprite( Balloon_string, x+19, balloon_y+69 );
+                if (os_GetCSC()){
+                    end=1;
+                    break;
+                }
+            }
+            balloon_y-=3;
+            gfx_FillRectangle_NoClip(x+19,balloon_y+187,11,3);
+            if (end==1){
+                break;
+            }
+        }
+        gfx_FillRectangle_NoClip(0,0,320,2);
+        rand_num=randInt(0,1);
+        if (rand_num==0){
+            x=randInt(0,27);
+        }else{
+            x=randInt(244,271);
+        }
+        balloon_y=240;
+    }
+    gfx_End();
+    pgrm_CleanUp();
+}
