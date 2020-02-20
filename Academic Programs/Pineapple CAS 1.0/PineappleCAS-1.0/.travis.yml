@@ -1,0 +1,10 @@
+language: c
+
+sudo: false
+os:
+  - linux
+  - osx
+
+script:
+  - make -f pc.makefile
+  - make -f pc.makefile test

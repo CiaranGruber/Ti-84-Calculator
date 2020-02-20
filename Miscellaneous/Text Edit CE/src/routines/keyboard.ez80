@@ -1,0 +1,42 @@
+getTable:
+ res pressed2ND,(iy+txtFlgs)
+ ld hl,CharTableNormal
+ ld b,'A'
+ ld a,(alphaStatus)
+ or a				; 0-CharTableNormal
+ jr z,gotit
+ ld hl,CharTableSmall
+ ld b,'a'
+ dec a				; 1-CharTableSmall
+ jr z,gotit
+ ld hl,CharTableNum		; 2-CharTableNum
+ ld b,0
+gotit:
+ ld (TblPtr),hl
+ push bc
+ ld a,6
+ ld (posY),a
+ changeFGColor(2)
+ changeBGColor(0)
+ pop af
+ ld de,320-12
+ ld (posX),de
+ call drawChar
+ changeFGColor(0)
+ changeBGColor(1)
+ ret
+ 
+alphaPressed:
+ bit pressed2ND,(iy+txtFlgs)
+ jr nz,++_
+ ld a,(alphaStatus)
+ inc a
+ cp 3
+ jr nz,+_
+ xor a
+_:
+ ld (alphaStatus),a
+_:
+ call getTable
+ call FullBufCpy
+ jp LoopAndGet

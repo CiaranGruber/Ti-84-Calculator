@@ -1,0 +1,96 @@
+InsertMem:
+ push de
+  push hl
+   ld hl,plotSScreen-1
+   bit smallInput,(iy+txtFlgs)
+   jr z,+_
+   ld hl,tmpStr+30
+_:
+   ld (change),hl
+   or a
+   sbc hl,de
+   jr z, +_
+   push hl
+   pop bc
+   add hl,de
+   dec hl
+  pop de
+  push de
+  add hl,de
+  ex de,hl
+change: = $+1
+  ld hl,plotSScreen-1
+  dec hl
+  lddr
+_:
+  pop bc
+ pop de
+ ret
+ 
+DelMem:
+ push de
+  push hl
+   add hl,de
+   ex de,hl
+   ld hl,plotSScreen-1
+   bit smallInput,(iy+txtFlgs)
+   jr z,+_
+   ld hl,tmpStr+30
+_:
+   or a
+   sbc hl, de
+   push hl
+   pop bc
+   pop hl
+   push hl
+   ex de,hl
+   jr z, +_
+   ldir
+_:
+  pop de
+ pop bc
+ ret
+
+;clears cursorX,cursorYReal,cursorXReal,cursorOffset,fileName,tmpStr
+ResetForNew:
+ ld bc,38
+ ld hl,cursorX
+ call _MemClear
+ ret
+ 
+drawLowerBar:
+ ld hl,vBuf2+(320*211)
+ ld a,1
+ ld bc,320*14
+ call _MemSet
+ drawHLine(0,209,320)
+ drawHLine(0,210,320)
+ ret
+ 
+StrLngth:
+ push hl
+ ld bc,0
+ push bc
+ cpir
+ pop hl
+ or a,a
+ sbc hl, bc
+ dec hl
+ push hl
+ pop bc
+ pop hl
+ ret
+ 
+drawSaveSavedStr:
+ changeFGColor(1)
+ changeBGColor(0)
+ bit saved,(iy+txtFlgs)
+ jr z,NotSaved
+ print(SavedStr, 3, 230)
+ jr +_
+NotSaved:
+ print(SaveStr, 3, 230)
+_:
+ changeFGColor(0)
+ changeBGColor(1)
+ ret

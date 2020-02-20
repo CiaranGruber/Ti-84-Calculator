@@ -1,0 +1,126 @@
+clearScreen:
+ call clearVBuf2
+ jp clearVBuf1
+ 
+clearVBuf2:
+ ld hl,vBuf2
+ jr clearBuffer
+clearVBuf1:
+ ld hl,vBuf1
+clearBuffer:
+ ld a,$FF
+ ld bc,320*240
+ jp _MemSet
+ 
+ClearScreenPartial:
+ ld a,1
+ ld hl,vBuf2+(320*20)
+ ld bc,320*240-(320*20)-(320*16)
+ jp _MemSet
+ 
+setup8bppMode:
+ ld a,lcdBpp8
+ ld (mpLcdCtrl),a
+ ld hl,images_paletteStart
+ ld de,mpLcdPalette
+ ld bc,images_paletteEnd-images_paletteStart
+ ldir
+ ret
+ 
+fullbufCpy:
+ ld bc,320*240-1
+ ld hl,vBuf2
+ ld de,vBuf1
+ ldir
+ ret
+bufCpy:
+ ld bc,(320*240)-(6*320)-90		; Shave off as much time that is reasonable when drawing.
+ ld hl,vBuf2
+ ld de,vBuf1
+ ldir
+ ret
+ 
+; hl -> sprite
+; bc = xy
+drawSprite8bpp255:
+ ld a,(hl)  ; width
+ ld (SpriteWidth_SMC),a
+ push hl
+  ld de,0
+  ld e,a
+  ld hl,320
+  or a,a
+  sbc hl,de
+  ld (SpriteWidth255_SMC),hl
+ pop hl
+ inc hl
+ push hl
+  or a
+  sbc hl,hl
+  ld l,b
+  ld a,c
+  push hl  ; Save X
+   call compute8bpp
+  pop de  ; de = X
+  add hl,de  ; Add X ; Returns hl -> sprite data, a = sprite height
+  ex de,hl
+ pop hl
+ ld b,(hl)
+ inc hl
+InLoop8bpp:
+ push bc
+SpriteWidth_SMC: =$+1
+  ld bc,0
+loop8bpp:
+  ldir
+  ex de,hl
+SpriteWidth255_SMC: =$+1
+   ld bc,0   ; Increment amount per line
+   add hl,bc
+  ex de,hl
+ pop bc
+ djnz InLoop8bpp
+ ret
+
+compute8bpp:
+ ld de,320
+ call multDEA
+SwapBufferLoc_SMC: =$+1
+ ld de,vBuf2
+ add hl,de
+ ret
+ 
+multDEA:
+ ld b,8
+ or a
+ sbc hl,hl
+ add hl,hl
+ rlca
+ jr nc,$+3
+ add hl,de
+ djnz $-5
+ ret
+ 
+drawHLine8:
+  ld a,(cIndex)
+  ld (hl),a
+  inc hl
+  dec bc
+  ld a,b
+  or c
+  jr nz,drawHLine8
+  ret
+ 
+drawVLine8:
+ ld a,(cIndex)
+ ld (hl),a
+ ld de,320
+ add hl,de
+ dec bc
+ ld a,b
+ or c
+ jr nz,drawVLine8
+ ret
+ 
+cIndex:
+ .db 0

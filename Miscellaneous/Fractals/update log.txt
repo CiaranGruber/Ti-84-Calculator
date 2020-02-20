@@ -1,0 +1,99 @@
+--------------------------------WARNING!!!------------------------------------
+   My saves are a little mixed up, so not everything will line up perfectly.
+------------------------------------------------------------------------------
+
+	The Ultimate fractal grapher for the TI-84 plus CE was conceived
+around February 2016 after I had searched for a decent grapher all over the
+internet without success. Not long after its conception, M1 came off the
+board.
+
+M1: A simple loop which placed the appropriate black or white 3x3 pixel dot on
+the graph screen according to 10 itts. (M stood for Mandelbrot)
+
+After M1, I was feeling pretty good about myself, so later I through together
+M2.
+
+M2: A loop which placed the appropriate black or white 3x3 pixel dots on the
+graph screen according to ~25 its. In this version, I was also experimenting
+with zoom; You would have to enter Xmax, Xmin, Ymax, and Ymin manually (this
+was before I knew about ‘vars’ ‘1’). It didn’t make it very far before I
+decided to lay it off until I got better at programing.
+
+I also designed J2 (same as M2 but it was for Julia sets) a little while after
+M2. (Now? the Js been lost to the wind… *sob*)
+
+After losing M2 and J2 to a RAM reset, I again scoured the internet for a
+fractal grapher. The result was M3 (after some modding, it was a CSE program)
+
+M3: A program I found off the internet (finally).
+J3: M3 for Julia Sets. (J stood for Julia)
+
+After some thought (and some experimentation with the ‘Menu(’ function) I
+created F4.
+
+F4: This is the first combined set, nothing special. The inspiration for this
+came from having to edit both the M and J programs whenever I created an
+update. In short: F4=M3+J3 (F stands for Fractal)
+
+I lost interest in the graphing of fractals for some time after F4. But, after
+I found out about lowercase lettering, I started converting all of my programs
+to it.
+
+F5: 6/17/2016
+Added lowercase lettering, added color to the iterations (It was not
+adjustable), converted the initial zoom to X=3.219512… and Y=2 rather then the
+old X=4.024390… and Y=2.5.
+
+And again I started experimenting with zoom, except this time I had the X/Y
+(‘vars’ ‘1’) menu to work with!
+
+F6: A Working zoom! Color choices for the iterations, iteration choices
+ranging from 1 to 1000, and pixilation choices of 1 or 3.
+
+When I colored the iterations, I realized it was all wrong.
+
+F7: Corrected the boundary search from abs(real(Z))>2 to real(Z)²+imag(Z)²>4
+
+I started getting serious about adding new features
+
+F8: Added the window menu and the settings menu (it only had the pixilation
+and the iteration settings.)
+
+F9: added iteration colors choices, added the Notes mainmenu option and added
+a crude time approximation by iterations.
+
+F10: completed work on the window editor (press the key associated with the
+menu option you want to change) the time approximation takes the pixilation
+into account.
+
+F11: added the format menu to keep all of the color options contained. ALL of
+the programs graph colors can now be changed.
+
+F12: Added the custom backgrounds to the background changer. added the Off
+feature to the unit colors so you could see the background.
+
+F13: Added the ability to use the arrows in the format menu rather than just
+using the number-pad. (ancient custom feature:) when entering Julia mode or
+Mandelbrot mode you could enter the power to have Z be to (Z^G+C=Z). I also
+took the 1000 iteration limit off.
+
+F14: Added the Custom feature to the main menu and added the equation view to
+the window menu option.
+
+Then I got a TIcalc account! I released F15.
+
+F15: Added Sierpinski and adds the boundary settings to the Custom feature. It
+will also now display the colors correctly when the program is opened in an
+external editor and it now has error messages in the inside of the program.
+Also, I redid the engine to attempt to make the grapher faster; I think all it
+did was make it a little smaller, not faster.
+
+I realized F5 as the ‘simple version’ in the release didn’t work, so I
+changed that to F8.
+Then I got a Cemetech account! (Released F15)
+
+Then the real game changer came in: I learned C! (Thanks Mateo)
+
+F1C: Wrote the grapher in C! Includes a Mandelbrot and Julia grapher, zoom,
+and a function that should have been implemented into graphX hadn't yet.
+(F1C stands for the Fractals v1 in C after my old basic Fractal graphers.)

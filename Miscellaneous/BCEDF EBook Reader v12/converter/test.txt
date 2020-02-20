@@ -1,0 +1,23 @@
+TESTDOC
+\title:BCEDF Converter Test
+\author:BATI
+\char:FF00FF00FF00FF00
+\char:00FF00FF00FF00FF
+\endheader
+
+Hello World! \br
+\highlight:4 \textcolor:7
+This text is green on green! \clear
+\horizontal \br
+
+\textcolor:224 \textscale:4,4
+\char:0 \char:1 \clear
+\horizontal \br
+
+\textcolor:231 \textscale:4,4
+\char:1 \char:0 \clear
+\horizontal \br
+
+\underline Those two glyphs ( \char:0 \char:1 ) are custom, and embedded in the header of this document!
+\horizontal
+

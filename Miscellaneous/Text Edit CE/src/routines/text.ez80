@@ -1,0 +1,169 @@
+DrawLine:
+ ld a,(hl)
+ cp newlineByte
+ ret z
+ or a
+ ret z
+ call drawChar
+ inc hl
+ jr DrawLine
+
+DrawLine20:
+ ld b,20
+_:
+ push bc
+  ld a,(hl)
+  cp newlineByte
+  jr z,+_
+  or a
+  jr z,+_
+  call drawChar
+  inc hl
+ pop bc
+ djnz -_
+ ret
+_:
+ pop bc
+ ret
+ 
+drawString:
+ ld a,(hl)
+ inc hl
+ or a
+ ret z
+ cp newlineByte
+ ret z
+ call drawChar
+ jr drawString
+
+drawChar:
+ ld bc,(posX)
+ push hl
+ push af
+ push de
+ push bc
+ push af
+  ld a,(posY)
+  push bc	; Save X
+   call compute8bpp
+  pop de	; de = Y
+  add hl,de	; Add X
+ pop af
+ push hl
+  or a
+  sbc hl,hl
+  ld l,a
+  add hl,hl
+  add hl,hl
+  add hl,hl
+  ex de,hl
+  ld hl,char000
+  add hl,de	; hl -> Correct Character
+ pop de		; de -> correct place to draw
+ ld b,8
+_iloop:
+ push bc
+  ld c,(hl)
+  ld b,8
+  ex de,hl
+  push de
+   ld de,(ForeColor)
+_i2loop:
+   ld (hl),d
+   rlc c
+   jr nc,+_
+   ld (hl),e
+_:
+   inc hl
+   djnz _i2loop
+NextL:
+   ld bc,320-8
+   add hl,bc
+  pop de
+  ex de,hl
+  inc hl
+ pop bc
+ djnz _iloop
+ pop bc
+ pop de
+ pop af		; character
+ cp 128
+ jr c,+_
+ xor a
+_:
+ ld hl,CharSpacing
+ call _AddHLAndA
+ ld a,(hl)	; A holds the amount to increment per character
+ or a,a
+ sbc hl,hl
+ ld l,a
+ add hl,bc
+ push hl
+ pop bc
+ inc bc
+ ld (posX),bc
+ pop hl
+ ret
+
+;Gets width of character into A
+getPixelWidth:
+ cp 128
+ jr c,+_
+ xor a
+_:
+ ld hl,CharSpacing
+ call _AddHLAndA
+ ld a,(hl)	; A holds the amount to increment per character
+ inc a
+ ret
+ 
+DrawCursor:
+ ld a,(cIndex)
+ push af
+ ld a,2
+ ld (cIndex),a
+_:
+ ld a,(cursorYReal)
+ call compute8bpp
+ push hl
+  ld hl,(cursorXReal)
+  ex de,hl
+ pop hl
+ add hl,de
+ ld bc,9
+ call drawVLine8
+ pop af
+ ld (cIndex),a
+ ret
+EraseCursor:
+ ld a,(cIndex)
+ push af
+ ld a,1
+ ld (cIndex),a
+ jr -_
+ 
+;Gets width of string into DE
+getPixelWidthStr:
+ ld de,0
+ ld b,a
+_:
+ push hl
+ ld a,(hl)
+ push de
+  call getPixelWidth	; Now add a to de
+  or a,a
+  sbc hl,hl
+  ld l,a
+ pop de
+ add hl,de
+ push hl
+ pop de
+ pop hl
+ inc hl
+ djnz -_
+ ret
+ 
+ForeColor:
+ .db 1
+BackColor:
+ .db 0

@@ -1,0 +1,3 @@
+In this folder, place the following:
+
+spasm.exe -- SPASM-ng, ez80 support
