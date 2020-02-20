@@ -24,6 +24,7 @@ Other apps can be found by searching "TI-84 Plus CE apps" on the internet and se
 Note: Some apps may not work on the calculator as they were designed for other versions of the TI-84
 
 ### App Naming
+<<<<<<< HEAD
 Various apps may have unusual names that would benefit from being changed within the calculator. Further instructions will be located in the README.md files located in each folder.
 
 ### Apps not included
@@ -31,6 +32,31 @@ Due to various reasons, several apps may not been included in the "All Files" fo
 * Large sizes
 * Perceived low-quality
 * Or a large amount of customisation when installing the app
+=======
+Various apps may have unusual names that would benefit from being changed. The following are recommendations:
+* AGD -> GEODASH
+* SPAZE -> INVADERS
+* CMONSTER -> BREAKOUT
+* OIRAM -> MARIO
+* ZMBCHS -> ZOMBCHAS
+* ADVENT -> CAVEADV (Reduces confusion with ADVENTUR) (Is a part of Colossal Cave Adventure)
+
+### Apps not included
+Due to various reasons, several apps have not been included in the "All Files" folder. These may be due to large sizes, perceived low-quality or due to a large amount of customisation in terms of app install
+
+#### Large sizes
+Programs >100KB have not been included in the "All Files" folder due to large sizes in which it may be preferable to individually choose its relevance to the games you wish to play. Note: Oiram/Mario has not been included in this selection
+* BejeweledCE
+* Colossal Cave Adventure
+
+#### Extensive Customisation
+* TI-Boy
+* 2D Racer (Also low-quality)
+
+#### Low-quality
+* SwipeCE
+* Minecraft 2D (More a proof-of-concept program)
+>>>>>>> 17042f59ab150cb2874d025caae273ef7e76da53
 
 ## Using the Apps
 Standard Instructions:
