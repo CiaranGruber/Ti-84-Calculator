@@ -13,10 +13,12 @@ The following programs would benefit from being renamed in order to prevent conf
 * DVD screensaver - While good, it takes up 22KB, large for such a program
 * BCEDF EBook Reader - Specific instructions in README (in folder)
 * Balloons Screensaver - Basic program with large storage requirements
+* Fractals - Fast Fractals, while not including the Sapinski Triangle, is better
 
 ### Proof-of-concepts
 * Rotate and Zoom
 * Bounce
+* Instant Messenger - While not technically proof-of-concept, is too difficult to use practically
 
 ### Dangerous
 The below applications have not been included as they may break the calculator if used incorrectly. Use with caution.
@@ -31,3 +33,4 @@ Some programs may be part of other programs and are not designed to be run. Thes
 
 ## Programs made by myself
 * Smiling Face Y-vars
+* Graph Fixer

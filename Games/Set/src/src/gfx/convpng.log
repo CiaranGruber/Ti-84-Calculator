@@ -1,0 +1,14 @@
+opened convpng.ini
+
+--- logo_gfx (C) ---
+using built-in xlibc palette ...
+1:
+ logo : converted!
+
+converted in 0 s
+
+[warning] image quality might be too low.
+please try grouping similar images, reducing image colors, 
+or selecting a better palette if conversion is not ideal.
+
+finished!

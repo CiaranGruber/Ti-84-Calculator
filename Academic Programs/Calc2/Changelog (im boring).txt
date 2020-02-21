@@ -1,0 +1,6 @@
+---Calc2 v1.0---(Released on 9/18/15)
+Calc2 is released!
+Automatic fractions
+Equation Solver
+Grapher with table (G-T)
++ Launches Mathtools (check readme for more info)
