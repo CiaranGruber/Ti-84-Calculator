@@ -6,6 +6,7 @@ Contains a variety of programs used for purposes other than academics or gaming.
 The following programs would benefit from being renamed in order to prevent confusion when selecting programs:
 * ZHEDIT -> MEMEDIT
 * F1C -> FRACTALS
+* TMR -> TIMER
 
 ## Apps not in "- All Files" folder
 
