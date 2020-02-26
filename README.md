@@ -14,8 +14,8 @@ The following is recommended to improve programs however it is not required
 ## App/OS Installation
 1. Connect calculator to computer via the USB cable
 2. Open TI-Connect
-3. If calculator version is 5.3+ it is recommended to get the latest OS
-4. Navigate to the "All Files" folder and select all programs (Ctrl+A to select all)
+3. If calculator version is not 5.3+ it is recommended to get the latest OS
+4. Navigate to the "All Files" folder within the "Games" folders, etc and select all programs (Ctrl+A to select all)
 5. Drag all app/program files from File Explorer onto the calculator shown on TI-Connect
 5. It is recommended to set all programs to be Archived where possible
 6. Note various programs may benefit from being renamed
