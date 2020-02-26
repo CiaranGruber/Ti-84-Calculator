@@ -26,14 +26,14 @@ Note: Some apps may not work on the calculator as they were designed for other v
 Also, many apps are not used in the calculator and take up space. You can delete these by completing the following steps on the calculator:
 1. Press the following keys \[2nd]→\[+]→\[2]→\[1] to get through to memory management
 2. From here delete unnecessary applications etc. Recommended things to delete include:
-* CelSheet
-* Deutsch
-* EasyData
-* Español
-* Français
-* Netherlan
-* Portug
-* Svenska
+   * CelSheet
+   * Deutsch
+   * EasyData
+   * Español
+   * Français
+   * Netherlan
+   * Portug
+   * Svenska
 
 ### App Naming
 Various apps may have unusual names that would benefit from being changed within the calculator. Further instructions will be located in the README.md files located in each folder.
