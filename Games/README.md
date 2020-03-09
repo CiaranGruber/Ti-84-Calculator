@@ -11,6 +11,7 @@ The following programs would benefit from being renamed in order to prevent conf
 * ZMBCHS -> ZOMBCHAS
 * ADVENT -> CAVEADV (Reduces confusion with ADVENTUR) (Is a part of Colossal Cave Adventure)
 * ADVENTUR -> ADVENT8K (For 8K Adventure)
+* DTTWT -> WHTETILE
 * CONNECT4 -> CONECT2P (By Martyboyz)
 
 ## Apps not in "- All Files" folder

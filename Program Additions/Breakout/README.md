@@ -9,3 +9,6 @@ CMonster allows level packs to be added simply and easily. To install level pack
 3. Select chosen pack
 
 To view levels, press \[prgm] when on the main menu.
+
+## Creating Level Packs
+1. Use CmEditor to create the level packs
