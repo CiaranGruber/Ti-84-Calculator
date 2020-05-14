@@ -4,15 +4,15 @@ This folder contains the vast collection of games available for the TI-84 Plus C
 
 ## App Renaming
 The following programs would benefit from being renamed in order to prevent confusion when selecting programs:
-* AGD -> GEODASH
-* SPAZE -> INVADERS
-* CMONSTER -> BREAKOUT
-* OIRAM -> MARIO
-* ZMBCHS -> ZOMBCHAS
 * ADVENT -> CAVEADV (Reduces confusion with ADVENTUR) (Is a part of Colossal Cave Adventure)
-* ADVENTUR -> ADVENT8K (For 8K Adventure)
-* DTTWT -> WHTETILE
+* AGD -> GEODASH
+* CMONSTER -> BREAKOUT
 * CONNECT4 -> CONECT2P (By Martyboyz)
+* DTTWT -> WHTETILE
+* OIRAM -> MARIO
+* SPAZE -> INVADERS
+* TETRICA -> TETRIS
+* ZMBCHS -> ZOMBCHAS
 
 ## Apps not in "- All Files" folder
 
