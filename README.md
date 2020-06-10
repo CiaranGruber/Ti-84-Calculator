@@ -35,6 +35,13 @@ Also, many apps are not used in the calculator and take up space. You can delete
    * Portug
    * Svenska
 
+### Standard Calculator Setup
+For a standard set-up of the calculator, the following steps should be undertaken
+1. Update the OS if this is not already done
+2. On the calculator delete the memory by going \[2nd]→\[+]→\[7]→Scroll right to ALL→\[1] (Press All Memory)→\[2]
+3. Go to the "Default Calculator Setup" folder and drag all files into the calculator
+4. After files have been transferred, install Cesium following steps outlined in its README document in the "Shells" folder
+
 ### App Naming
 Various apps may have unusual names that would benefit from being changed within the calculator. Further instructions will be located in the README.md files located in each folder.
 
