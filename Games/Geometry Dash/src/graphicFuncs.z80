@@ -64,11 +64,69 @@ MIR_noDraw:
 	ret
 
 
+drawMiniTile:
+	; INPUT : 
+	;	IX : sprite data
+	;	HL : Position (ADDR)
+	ld b,TIL_sizeY/2
+MINI_drawMiniTileY:
+	push bc
+	ld b,TIL_sizeX/2
+MINI_drawMiniTileX:
+	ld a,(ix)
+	cp BGCl
+	jr z,MINI_noDrawMini
+	ld (hl),a
+MINI_noDrawMini:
+	inc hl
+	inc ix
+	inc ix
+	djnz MINI_drawMiniTileX
+	ld de,320
+	add hl,de
+	ld bc,-(TIL_sizeX/2)
+	add hl,bc
+	ld bc,TIL_sizeX+1
+	add ix,bc
+	pop bc
+	djnz MINI_drawMiniTileY
+	ret
+
+
+drawTile:
+	; INPUT : 
+	;	IX : sprite data
+	;	HL : Position (ADDR)
+	ld b,TIL_sizeY
+TILE_drawTileY:
+	push bc
+	ld b,TIL_sizeX
+TILE_drawTileX:
+	ld a,(ix)
+	cp BGCl
+	jr z,TILE_noDraw
+	ld (hl),a
+TILE_noDraw:
+	inc hl
+	inc ix
+	djnz TILE_drawTileX
+	ld de,320
+	add hl,de
+	ld bc,-TIL_sizeX
+	add hl,bc
+	pop bc
+	djnz TILE_drawTileY
+	ret
+
+
 putGDFont:
 	; INPUT :
 	;	HL : pos
 	;	IX : string
-	ld b,(ix)
+	ld a,(ix)
+	or a
+	ret z
+	ld b,a
 	inc ix
 putGDFont_loop:
 	ld a,(ix)
@@ -122,7 +180,7 @@ emptyPxl:
 centerText:
 	; INPUT :
 	;	HL : beginning
-	;	DE : Space (pxl)
+	;	DE : Space available (pxl)
 	;	IX : string
 	; OUTPUT :
 	;	HL : new display location
@@ -272,3 +330,128 @@ dontDisp:
 	ret
 colorCircle:
 	.db 4
+
+
+getkeyLetter:
+	; INPUT :
+	;	NONE
+	; OUTPUT :
+	;	A : char or -1 if DEL is pressed or -2 if ENTER is pressed
+	ld hl,$F50000
+	ld (hl),2
+	xor a
+GKL_scanWait:
+	cp (hl)
+	jr nz,GKL_scanWait
+
+	ld a,(kbdG1)
+	ld c,DEL
+	bit kbitDel, a
+	ret nz
+
+	ld a,(kbdG2)
+	ld c,'X' - 40h
+	bit kbitStore, a
+	ret nz
+	ld c,'S' - 40h
+	bit kbitLn, a
+	ret nz
+	ld c,'N' - 40h
+	bit kbitLog, a
+	ret nz
+	ld c,'I' - 40h
+	bit kbitSquare, a
+	ret nz
+	ld c,'D' - 40h
+	bit kbitRecip, a
+	ret nz
+	ld c,'A' - 40h
+	bit kbitMath, a
+	ret nz
+
+	ld a,(kbdG3)
+	bit kbit0, a
+	ld c,' '
+	ret nz
+	ld c,'Y' - 40h
+	bit kbit1, a
+	ret nz
+	ld c,'T' - 40h
+	bit kbit4, a
+	ret nz
+	ld c,'O' - 40h
+	bit kbit7, a
+	ret nz
+	ld c,'J' - 40h
+	bit kbitComma, a
+	ret nz
+	ld c,'E' - 40h
+	bit kbitSin, a
+	ret nz
+	ld c,'B' - 40h
+	bit kbitApps, a
+	ret nz
+
+	ld a,(kbdG4)
+	ld c,'Z' - 40h
+	bit kbit2, a
+	ret nz
+	ld c,'U' - 40h
+	bit kbit5, a
+	ret nz
+	ld c,'P' - 40h
+	bit kbit8, a
+	ret nz
+	ld c,'K' - 40h
+	bit kbitLParen, a
+	ret nz
+	ld c,'F' - 40h
+	bit kbitCos, a
+	ret nz
+	ld c,'C' - 40h
+	bit kbitPrgm, a
+	ret nz
+
+	ld a,(kbdG5)
+	ld c,'V' - 40h
+	bit kbit6, a
+	ret nz
+	ld c,'Q' - 40h
+	bit kbit9, a
+	ret nz
+	ld c,'L' - 40h
+	bit kbitRParen, a
+	ret nz
+	ld c,'G' - 40h
+	bit kbitTan, a
+	ret nz
+
+	ld a,(kbdG6)
+	ld c,'W' - 40h
+	bit kbitSub, a
+	ret nz
+	ld c,'R' - 40h
+	bit kbitMul, a
+	ret nz
+	ld c,'M' - 40h
+	bit kbitDiv, a
+	ret nz
+	ld c,'H' - 40h
+	bit kbitPower, a
+	ret nz
+	ld c,ENTER
+	bit kbitEnter, a
+	ret nz
+	ld c,CLEAR
+	bit kbitClear, a
+	ret nz
+
+	ld a,(kbdG7)
+	ld c,UP
+	bit kbitUp, a
+	ret nz
+	ld c,DOWN
+	bit kbitDown, a
+	ret nz
+
+	jp getkeyLetter

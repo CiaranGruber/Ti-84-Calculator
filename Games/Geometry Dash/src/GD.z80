@@ -9,7 +9,7 @@
 	; constants
 	#DEFINE TIL_sizeY 	21
 	#DEFINE TIL_sizeX 	21
-	#DEFINE MAP_sizeY 	10
+	#DEFINE MAP_sizeY 	10 ; error : I should have used only WIN_sizeY
 	#DEFINE WIN_sizeY 	10
 	#DEFINE WIN_sizeX 	16
 	#DEFINE SPR_sizeX 	30
@@ -23,15 +23,19 @@
 	#DEFINE TAIL_nb		08
 	#DEFINE TAIL_fstClr	$FC
 	#DEFINE beg_sprite	5*320+5
-	#DEFINE nbrLevels	2
 	#DEFINE tilesExtracted		pixelshadow2-6000
 	#DEFINE tilesExtractedMenu	plotSScreen
 	#DEFINE sizeGDFont	28*28*26
-	; saferam
+	; values of getkeyLetter
+	#DEFINE CLEAR	-1
+	#DEFINE DEL		-2
+	#DEFINE ENTER	-3
+	#DEFINE UP		-4
+	#DEFINE DOWN	-5
+	; saferam play level
 	;#DEFINE TRS_paletteSRC	(pixelshadow2-3900)
-	
-	#DEFINE fstBlock 		pixelshadow		; adresse du block en haut à gauche de la fenêtre (dans le cas où le scroll serait à son max)
-	#DEFINE dispBlkFrmX		pixelshadow+3	; offset depuis le début du niveau
+	#DEFINE fstBlock 		pixelshadow		; adresse du block en haut à gauche de la fenêtre (visuelle)
+	#DEFINE dispBlkFrmX		pixelshadow+3	; nombre de pixel qui ont déjà été affiché (à partir d'om commencer l'affichage du tile après le scroll)
 	#DEFINE	Vcharacter_posY	pixelshadow+6	; position du sprite sur l'écran
 	#DEFINE	prev_posY		pixelshadow+9	; position du sprite sur l'écran sur la précédente frame (sert à effacer le sprite)
 	#DEFINE	jmp_speed		pixelshadow+12	; vitesse du saut
@@ -39,11 +43,11 @@
 	#DEFINE prev_sprState	pixelshadow+18	; previous sprite we were displaying [0-9]
 	#DEFINE currentTailEl	pixelshadow+21	; sert pour les étincelles qui suivent le sprite
 	#DEFINE MAP_sizeX		pixelshadow+24	; taille X de la map qui est en train d'être jouée
-	#DEFINE dispBlkFrmY		pixelshadow+27	; 
+	#DEFINE dispBlkFrmY		pixelshadow+27	; analogue à dispBlkFrmX pour l'axe Y
 	#DEFINE prev_speed		pixelshadow+30	; ancienne vitesse du saut
 	#DEFINE prv_spdDiv320	pixelshadow+33	; ancienne vitesse du saut/320
 	#DEFINE bytesToSkip		pixelshadow+36	; offset qui pointe vers le block en haut à gauchde de la fenetre (pour le scroll en place)
-	#DEFINE maxBytesToSkip	pixelshadow+39	; nombre de block qu'on peut sauter au maximum (pour le vertical scrolling, définit la valeur max de bytestosip)
+	#DEFINE maxBytesToSkip	pixelshadow+39	; nombre de block qu'on peut sauter au maximum (pour le vertical scrolling, définit la valeur max de bytestoskip)
 	#DEFINE currentSprBuf	pixelshadow+42	; buffer en cours sur cette frame (voir behindSprite1/20)
 	#DEFINE addrGravity		pixelshadow+45	; adresse qui pointe vers l'adresse du prochain changement de gravité
 	#DEFINE nbChngGrvtyRmng	pixelshadow+48	; combien il reste de changement de gravité sur ce niveau
@@ -51,13 +55,38 @@
 	#DEFINE nbChngSphpRmng	pixelshadow+54	; combien il reste de changement de véhicule sur ce niveau
 	#DEFINE beginningMap	pixelshadow+57	; adresse du point en haut à gauche de la map
 	#DEFINE spriteSize		pixelshadow+60	; taille de l'actuel sprite (en fonction du véhicule, 30 ou 22)
-	;#DEFINE TRS_paletteDST	pixelshadow+66
-	;#DEFINE TRS_counter		pixelshadow+66
-	#DEFINE mn				pixelshadow+97 ; used as scrapMem
-	#DEFINE behindSprite1	pixelshadow+100 ; 900 bytes (30*30)
-	#DEFINE behindSprite2	pixelshadow+1000 ; 900 bytes (30*30)
-	#DEFINE nmbOfLevels		cursorImage		; used in the main menu
-	#DEFINE namesBuf		cursorImage+3	; used in the main menu
+	#DEFINE begLvlToPlay	pixelshadow+63	; en mode édition, permet de jouer à un level à partir de la position du curseur
+	; saferam edit level
+	#DEFINE LV_MAP_sizeX	pixelshadow+100	; version edition de MAP_sizeX
+	#DEFINE LV_bytesToSkip	pixelshadow+103	; """
+	#DEFINE LV_maxBytesToSkip pixelshadow+106; """
+	#DEFINE LV_beginningMap	pixelshadow+109	; """
+	#DEFINE LV_fstBlock		pixelshadow+112	; """
+	#DEFINE posCursorScrnX	pixelshadow+115
+	#DEFINE posCursorScrnY	pixelshadow+116
+	#DEFINE currentBlock	pixelshadow+118
+	#DEFINE currentBlock2	pixelshadow+119	; si FLG_twoPartTile est set, currentBlock2 est le numéro de la 2ème partie du tile
+	#DEFINE addrMAP_sizeY	pixelshadow+121
+	#DEFINE addrMAP_sizeX	pixelshadow+124
+	#DEFINE LV_addrGravity	pixelshadow+127
+	#DEFINE LV_addrSpaceship pixelshadow+130
+	#DEFINE timerArrow		pixelshadow+133
+	#DEFINE playMem			pixelshadow+136
+	#DEFINE FLG_twoPartTile	0 ; asm_flag1 (1=current tile is cut in two parts of 21*21 pxl each)
+	#DEFINE FLG_insDel10	1 ; asm_flag1 (1=inserting or deleting 10 columns in edit mode)
+	#DEFINE FLG_blockInsDel	2 ; asm_flag1 (1=prevents program from inserting or deleting another line/column)
+	#DEFINE FLG_blockArrows	3 ; asm_flag1 (1=block arrows)
+	#DEFINE FLG_blockMode	4 ; asm_flag1 (1=block Mode press after game play)
+	#DEFINE FLG_toogleCtxt	5 ; asm_flag1 (1=toogleSpacechip, 0=toogleGravity)
+	; saferam misc
+	#DEFINE mn				pixelshadow+197 ; used as scrapMem
+	#DEFINE behindSprite1	pixelshadow+200 ; 900 bytes (30*30)
+	#DEFINE behindSprite2	pixelshadow+1100 ; 900 bytes (30*30)
+	#DEFINE nmbOfLevels		cmdShadow		; used in the main menu
+	#DEFINE createDiffic	cmdShadow+3
+	#DEFINE addrLvlEdited	cmdShadow+4	; adresse après le nom du niveau qui est en train d'être édité
+	#DEFINE createNameBuf	cmdShadow+7	; (9+9+2 OCTETS) buffer de l'entrée utilisateur du nom du niveau qu'il faut créer
+	#DEFINE namesBuf		cmdShadow+27	; used in the main menu
 	; FLAGS
 	;	asm_flag1
 	#DEFINE	FLG_jumping		0 ; flag (sprite is jumping or spaceship is flying)
@@ -70,16 +99,17 @@
 	#DEFINE FLG_alrdyErased	7 ; flag ()
 	;	asm_flag2
 	#DEFINE FLG_pauseLeft	0 ; flag ()
-	;#DEFINE FLG_colorTRS	1 ; flag ()
-	#DEFINE FLG_noLevel		2 ; flag (if there's no level on the calc)
-	#DEFINE FLG_jmpUsed		3 ; flag (prevent sprite from jumping on a yellow tile if user did not re-pressed 2nde)
-	;COMPATIBILITÉ AVEC ANCIENNE VERSION (sans vaisseau spatial)
-	#DEFINE FLG_sphpAvlble	4
+	#DEFINE FLG_noLevel		1 ; flag (if there's no level on the calc)
+	#DEFINE FLG_jmpUsed		2 ; flag (prevent sprite from jumping on a yellow tile if user did not re-pressed 2nde)
+	#DEFINE FLG_sphpAvlble	3 ; flag (COMPATIBILITÉ AVEC ANCIENNE VERSION (sans vaisseau spatial))
+	#DEFINE FLG_2dePartName	4 ; flag (used when choosing the name of the level that is being created)
+	#DEFINE FLG_inEditorMode 5; flag (1=editing a level)
+	;#DEFINE FLG_colorTRS	5 ; flag ()
 .list
 	.org userMem-2
 	.db tExtTok,tAsm84CeCmp
 
-	
+
 start:
 	; AppVars stuffs
 	ld hl,AppVarGraphics
@@ -145,7 +175,7 @@ menuGame:
 	DI
 	; looking for level appvars in VAT
 	ld hl,(progPtr)
-	ld ix,namesBuf ; address[3] addrAfterName[3] → 6 bytes
+	ld ix,namesBuf ; address[3] addrAfterName[3] addrNameAppVarInVAT → 9 bytes
 	ld iy,0
 loopNextAppV:
 	ex de,hl
@@ -196,8 +226,8 @@ AppVarFound:
 appVarInRAM:
 	inc de
 	inc de
-	; looking for "stringToFind"
-	ld hl,stringToFind
+	; looking for "DataLevel"
+	ld hl,DataLevel
 	ld b,(hl)
 	inc hl
 stringToFind_loop:
@@ -224,6 +254,12 @@ stringToFind_loop:
 	inc ix
 	inc ix
 	inc iy
+	pop hl
+	ld (ix),hl
+	inc ix
+	inc ix
+	inc ix
+	push hl ; pour reset le stack si on est sorti de la boucle stringToFind_loop prématurément (y'a un pop d'écart)
 	pop hl
 notForGD:
 	ld a,(hl)
@@ -468,7 +504,7 @@ FILL_scanWait:
 	jp nz,quit
 	; play
 	bit kbitEnter, a
-	jr nz,fillingPlayLevel
+	jp nz,fillingPlayLevel
 	ld a,2
 	call _DelayTenTimesAms
 	exx
@@ -489,19 +525,367 @@ MENU_scanWait:
 	jp nz,prev_level
 	bit kbitRight, a
 	jp nz,next_level
-	; quit
+	; quit/play
 	ld a,(kbdG1)
 	bit kbitMode, a
 	jp nz,quit
-	bit 7, a
+	bit kbitDel, a
 	jp nz,quit
+	bit kbit2nd, a
+	jp nz,fillingPlayLevel
 	ld a,(kbdG6)
 	bit kbitClear, a
 	jp nz,quit
-	; play
 	bit kbitEnter, a
+	jp nz,fillingPlayLevel
+	; create/edit
+	ld a,(kbdG2)
+	bit kbitAlpha, a
+	jp nz,processEditLevel
+	ld a,(kbdG6)
+	bit kbitAdd, a
 	jr z,menuGameLoop
+
+	; choose the name of the level
+	ld hl,vRam+(320*100)
+	ld (hl),BGCl_menu
+	push hl
+	pop de
+	inc de
+	ld bc,320*85
+	ldir
+
+	ld hl,createNameBuf
+	ld (hl),0
+	push hl
+	pop de
+	inc de
+	ld bc,20
+	ldir
+	res FLG_2dePartName, (iy+asm_flag2)
+	xor a
+	ld (createDiffic),a
+	
+CREATE_loopName:
+	ld hl,pixelshadow
+	ld (hl),8
+	ld de,pixelshadow+1
+	ld bc,80*250
+	ldir
+
+	ld ix,createNameBuf
+	ld hl,pixelshadow+(250*27)+40
+	ld de,25*8
+	push ix
+	call centerText
+	pop ix
+	bit FLG_2dePartName, (iy+asm_flag2)
+	jr z,CREATE_oneName
+	ld de,-250*15
+	add hl,de
+	call putGDFont
+	ld hl,pixelshadow+(250*45)+40
+	ld de,25*8
+	push ix
+	call centerText
+	pop ix
+	ld a,(ix)
+CREATE_oneName:
+	call putGDFont
+
+	; difficulty
+	ld a,(createDiffic)
+	ld de,30*30+2
+	call _Mult16By8
+	ld ix,tilesExtractedMenu+sizeGDFont+1442
+	ex de,hl
+	add ix,de
+	ld hl,pixelshadow+(250*23)+5
+	ld de,250
+	call drawSprite
+
+	ld hl,pixelshadow
+	ld de,vRam+(55*320)+35
+	ld a,80
+CREATE_copyRect:
+	ld bc,250
+	ldir
+	push hl
+	ld hl,70
+	add hl,de
+	ex de,hl
+	pop hl
+	dec a
+	jr nz,CREATE_copyRect
+	
+	ld a,$10
+	call _DelayTenTimesAms
+	DI
+	call getkeyLetter
+	ld hl,createNameBuf
+	ld de,0
+	ld a,CLEAR
+	cp c
+	jp z,quit
+	ld a,UP
+	cp c
+	jr z,incDifficMod3
+	ld a,DOWN
+	cp c
+	jr z,decDifficMod3
+	ld a,DEL
+	cp c
+	jr nz,CREATE_insertLetter ; if we didn't press DEL
+
+	xor a
+	cp (hl)
+	jp z,CREATE_loopName
+	bit FLG_2dePartName, (iy+asm_flag2)
+	jr z,CREATE_del1Let
+	ld e,(hl)
+	add hl,de
+	inc hl
+	cp (hl)
+	jr nz,CREATE_del1Let
+	; if the second name is empty
+	res FLG_2dePartName, (iy+asm_flag2)
+
+CREATE_del1Let:
+	ld e,(hl)
+	dec (hl)
+	add hl,de
+	ld (hl),0
+	jp CREATE_loopName
+
+CREATE_insertLetter:
+	ld a,ENTER
+	cp c
+	jr nz,CREATE_noEnter ; ENTER
+	bit FLG_2dePartName, (iy+asm_flag2)
+	jr nz,processCreateLevel
+	ld a,(hl)
+	or a
+	jp z,CREATE_loopName
+	set FLG_2dePartName, (iy+asm_flag2)
+	jp CREATE_loopName
+
+CREATE_noEnter:
+	bit FLG_2dePartName, (iy+asm_flag2)
+	jr z,CREATE_1stPartName
+
+	ld e,(hl)
+	add hl,de
+	inc hl
+	ld a,(hl)
+	cp 8
+	jp z,CREATE_loopName
+	jr CREATE_endIfElse
+CREATE_1stPartName:
+	ld a,(hl)
+	cp 8
+	jp z,CREATE_loopName
+CREATE_endIfElse:
+	inc (hl)
+	ld e,(hl)
+	add hl,de
+	ld (hl),c
+
+	jp CREATE_loopName
+
+incDifficMod3:
+	ld a,(createDiffic)
+	inc a
+	and %00000011
+	ld (createDiffic),a
+	jp CREATE_loopName
+decDifficMod3:
+	ld a,(createDiffic)
+	dec a
+	cp -1
+	jr nz,decNoPb
+	ld a,3
+decNoPb:
+	ld (createDiffic),a
+	jp CREATE_loopName
+
+
+processCreateLevel:
+	; on a le nom dans createNameBuf
+	; on a la difficulté dans createDiffic
+	ld hl,createNameBuf
+	ld bc,0
+	ld b,(hl)
+	ex de,hl
+	ld hl,OP1
+	ld (hl),appVarObj
+	inc hl
+	ld (hl),'L'
+	inc hl
+	inc de
+CREATE_formatName:
+	ld a,(de)
+	cp ' '
+	jr z,CREATE_format_space
+	add a,40h
+	ld (hl),a
+	inc hl
+CREATE_format_space:
+	inc de
+	djnz CREATE_formatName
+	ld (hl),b ; b=0
+	push hl
+	call _chkfindsym
+	pop hl
+	jr c,CREATE_createAppVar
+
+	dec hl
+	ld a,'0'
+	ld b,10
+CREATE_loopTryNames:
+	ld (hl),a
+	push hl
+	call _chkfindsym
+	pop hl
+	jr c,CREATE_createAppVar
+	inc a
+	djnz CREATE_loopTryNames
+	; error : name already taken
+	jp _ErrSyntax
+
+CREATE_createAppVar:
+	; AppVar size : 12+sizeName+11+sizeDATA (we consider sizeDATA=40*10) => AppVar size = 423+sizeName
+	call _pushrealo1
+	call _pushrealo1
+	ld hl,createNameBuf
+	ld de,0
+	ld e,(hl)
+	add hl,de
+	inc hl
+	ld a,(hl)
+	add a,e
+	add a,2
+	ld e,a
+	push de
+	ld hl,423
+	add hl,de
+	call _createAppVar
+	inc de
+	inc de
+	ld hl,DataLevel+1
+	ld bc,12 ; FFEphariusFFGD
+	ldir
+	pop bc
+	ld hl,createNameBuf ; name
+	ldir
+	ld a,(createDiffic)
+	ld (de),a ; difficulty
+	inc de
+	call createHashID
+	ex de,hl
+	ld (hl),de ; id
+	inc hl
+	inc hl
+	inc hl
+	ld (hl),15 ; speed
+	inc hl
+	ld de,40 ; map size X
+	ld (hl),de
+	inc hl
+	inc hl
+	inc hl
+	ld (hl),0 ; map size Y
+	inc hl
+	ld (hl),0 ; empty tile
+	push hl
+	pop de
+	inc de
+	ld bc,399
+	ldir
+	ex de,hl
+	ld (hl),0 ; gravity
+	inc hl
+	ld (hl),0 ; spaceship
+	call _poprealo1
+	jr processEditLevel_afterPushOp1
+
+processEditLevel:
+	ld hl,(current_level)
+	ld de,6
+	add hl,de
+	ld hl,(hl)
+	ld b,(hl)
+	dec hl
+	ex de,hl
+	ld hl,OP1
+	ld (hl),appVarObj
+	inc hl
+EDIT_copyNameOp1:
+	ld a,(de)
+	ld (hl),a
+	inc hl
+	dec de
+	djnz EDIT_copyNameOp1
+	ld (hl),b ; b=0
+	call _pushrealo1
+processEditLevel_afterPushOp1:
+	; op1 must contain the name of the appvar
+	call _pushrealo1
+	call _chkfindsym
+	call _chkInRam
+	call nz,_ARC_UNARC ; in RAM
+	call _poprealo1
+	call _chkFindSym
+	ex de,hl
+	ld de,14
+	add hl,de
+	ld e,(hl)
+	add hl,de
+	inc hl
+	ld e,(hl)
+	add hl,de
+	ld de,6
+	add hl,de
+	ld (addrLvlEdited),hl ; addr of the data of the level being edited
+	; recup addr apres name
+	call editLevel
+	xor a
+	ld (mpLcdRange+11),a
+	ld hl,$EF7802
+	ld (mpLcdRange+8),hl
+	ld hl,vRam
+	ld (mpLcdBase),hl
+	jp menugame
+
+createHashID:
+	; Routine that create an almost "unique" hash from the name of the AppVar
+	; INPUT :
+	;	- OP4 : AppVar name
+	; OUTPUT :
+	;	- HL : Hash ID
+	push de
+	ld b,7
+	ld hl,0
+	ld ix,OP4+2
+HASH_loop:
+	push bc
+	ex de,hl
+	ld a,10
+	call _Mult16By8
+	ld bc,0
+	ld c,(ix)
+	add hl,bc
+	pop bc
+	inc ix
+	djnz HASH_loop
+	pop de
+	ld a,$FF ; we don't want HLU to be=0 (it means "old version of GD that doesn't have spaceship")
+	call _setHLUToA
+	ret
+
 fillingPlayLevel:
+	ld hl,0
+	ld (begLvlToPlay),hl
+	res FLG_inEditorMode, (iy+asm_flag2)
 	call playLevel
 	xor a
 	ld (mpLcdRange+11),a
@@ -597,7 +981,7 @@ newHighScore:
 
 prev_level:
 	ld hl,(current_level)
-	ld de,-6
+	ld de,-9
 	add hl,de
 	ex de,hl
 	ld hl,namesBuf
@@ -607,7 +991,7 @@ prev_level:
 	jr z,PREV_noProblem
 	ld bc,(nmbOfLevels)
 	dec c
-	ld b,6
+	ld b,9
 	mlt bc
 	ld hl,namesBuf
 	add hl,bc
@@ -618,11 +1002,11 @@ PREV_noProblem:
 
 next_level:
 	ld hl,(current_level)
-	ld de,6
+	ld de,9
 	add hl,de
 	ex de,hl
 	ld bc,(nmbOfLevels)
-	ld b,6
+	ld b,9
 	mlt bc
 	ld hl,namesBuf
 	add hl,bc
@@ -635,17 +1019,19 @@ NEXT_noProblem:
 	ld (current_level),de
 	jp menuGameNoClr
 
-	pop ix ; reset stack
-	pop ix
-	pop ix
+	pop hl ; reset stack
+	pop hl
 speedQuit:
-	pop ix
+	pop hl
 	xor a
 	ld (mpLcdRange+11),a
 	ld hl,$EF7802
 	ld (mpLcdRange+8),hl
 	ld hl,vRam
 	ld (mpLcdBase),hl
+	bit FLG_inEditorMode, (iy+asm_flag2)
+	jr z,quit
+	pop hl ; reset stack from level editor
 
 quit:
 	; removing the timer
@@ -768,15 +1154,15 @@ AppVarGraphics:
 	.db appvarObj,"GDGrphc",0
 AppVarMenu:
 	.db appvarObj,"GDMenu",0
-stringToFind:
+DataLevel:
 	.db 12,$FF,"Epharius",$FF,"GD"
 current_level:
 	.dl 0
-
 ERR_needGrphc:
 	.db "Need Appvar GDGrphc",0
 ERR_needMenu:
 	.db "Need Appvar GDMenu",0
+
 
 ;	MEMO: À faire à chaque conversion :
 ;		- copier couleurs JUMP à la fin de la palette
@@ -800,6 +1186,7 @@ ERR_needMenu:
 #include "graphicFuncs.z80"
 #include "game.z80"
 #include "endlevel.z80"
+#include "gdcreator.z80"
 #include "data.z80"
 
 .echo "Size : ", $ - start

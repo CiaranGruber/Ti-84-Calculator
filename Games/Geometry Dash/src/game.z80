@@ -85,6 +85,8 @@ playLevel_noextract:
 	pop hl
 	add hl,de
 	push hl
+	ld de,(begLvlToPlay)
+	add hl,de
 
 ;	; DEBUG ***********
 ;	push hl
@@ -122,10 +124,71 @@ playLevel_noextract:
 	add hl,bc
 	ld a,(hl)
 	ld (nbChngSphpRmng),a
+	ld (playMem+1),a
 	inc hl
 	ld (addrSpaceship),hl
 	set FLG_sphpAvlble, (iy+asm_flag2)
+
+	; if we don't start the level from the beginning (we need to adjust somme things with the contexts)
+	ld hl,(begLvlToPlay)
+	ld bc,0
+	or a
+	sbc hl,bc
+	jr z,oldVersion
+	; it means we are editing a level so LV_addrGravity and LV_addrSpaceship are set
+	ld hl,(begLvlToPlay)
+	ld de,8
+	add hl,de
+	ex de,hl
+	ld hl,(LV_addrGravity)
+	; HL = addr beg of gravity contexts
+	; DE = position of the beginning of the level
+	ld a,(hl)
+	inc hl
+	or a
+	jr z,+_
+findNextGravityChangeLoop:
+	push hl
+	ld hl,(hl)
+	or a
+	sbc hl,de
+	pop hl
+	jr c,GVTLP_before
+	ld (addrGravity),hl
+	ld (nbChngGrvtyRmng),a
+	jr +_
+GVTLP_before:
+	inc hl
+	inc hl
+	inc hl
+	dec a
+	jr nz,findNextGravityChangeLoop
+	ld (nbChngGrvtyRmng),a ; a=0
+_:
+	ld hl,(LV_addrSpaceship)
+	ld a,(hl)
+	inc hl
+	or a
+	jr z,oldVersion
+findNextSpaceshipChangeLoop:
+	push hl
+	ld hl,(hl)
+	or a
+	sbc hl,de
+	pop hl
+	jr c,SPSLP_before
+	ld (addrSpaceship),hl
+	ld (nbChngSphpRmng),a
+	jr oldVersion
+SPSLP_before:
+	inc hl
+	inc hl
+	inc hl
+	dec a
+	jr nz,findNextSpaceshipChangeLoop
+	ld (nbChngSphpRmng),a ; a=0
 oldVersion:
+	; End adjustment
 
 	ld hl,0
 	ld (dispBlkFrmX),hl
@@ -141,7 +204,6 @@ oldVersion:
 	ld (prev_sprState),hl
 	ld hl,(320*TIL_sizeY*7)+SPR_posX ; flying when spawning
 	ld (Vcharacter_posY),hl
-	ld hl,vram
 	ld (prev_posY),hl
 	ld hl,tailEffectBufPos
 	ld (currentTailEl),hl
@@ -170,7 +232,6 @@ oldVersion:
 	ld bc,30*30*2
 	ldir
 	res FLG_jmpAgain, (iy+asm_flag1)
-	set FLG_jumping, (iy+asm_flag1)
 	res FLG_rvrsGravity, (iy+asm_flag1)
 	res FLG_topReached, (iy+asm_flag1)
 	res FLG_botReached, (iy+asm_flag1)
@@ -178,7 +239,9 @@ oldVersion:
 	res FLG_alrdyErased, (iy+asm_flag1)
 	res FLG_pauseLeft, (iy+asm_flag2)
 	res FLG_jmpUsed, (iy+asm_flag2)
+	set FLG_jumping, (iy+asm_flag1)
 	;res FLG_colorTRS, (iy+asm_flag2)
+
 
 	; animation which makes the sprite spawn
 	ld de,(_jump_tiles)
@@ -203,7 +266,7 @@ ANIM_scanWait:
 	jr nz,ANIM_scanWait
 	ld a,(kbdG6)
 	bit kbitClear, a
-	jp nz,speedQuit-3
+	jp nz,speedQuit-2
 	exx
 	djnz ANIM_dispSpriteX
 	ld bc,320-SPR_sizeX
@@ -244,6 +307,51 @@ INIT_oldVersionWhithoutSpeed:
 	set 3, a ; enable timer
 	ld (mpTmrCtrl),a
 
+	ld a,(nbChngSphpRmng)
+	ld b,a
+	ld a,(playMem+1)
+	sub a,b
+	bit 0, a ; if a is even
+	call nz,spaceshipOn
+	ld a,(nbChngGrvtyRmng)
+	bit 0, a ; if a is even
+	jr z,loop
+
+	set FLG_rvrsGravity, (iy+asm_flag1)
+	ld hl,(Vcharacter_posY)
+	ld de,-320*2
+	add hl,de
+	ld (Vcharacter_posY),hl
+
+	; On affiche des plateformes pour que (puisque l'écran est vide au début) le personage ne s'écrase pas sur le haut
+	ld hl,_GD_tiles
+	ld de,25*3
+	add hl,de
+	ld ix,(hl)
+	ld hl,vRam+(320*42)+13
+	exx
+	ld hl,vRam+(320*240)+(320*42)+13
+	exx
+	ld a,14
+loopDrawTileReversedMode:
+	ex af,af'
+	push ix
+	call drawTile
+	pop ix
+	ld de,-(320*TIL_sizeY)+TIL_sizeX
+	add hl,de
+	exx
+	push ix
+	call drawTile
+	pop ix
+	ld de,-(320*TIL_sizeY)+TIL_sizeX
+	add hl,de
+	exx
+	ex af,af'
+	dec a
+	jr nz,loopDrawTileReversedMode
+
+
 ; **************** BOUCLE PRINCIPALE	
 loop: 
 	; --------------------------------
@@ -261,7 +369,7 @@ waitFrame:
 	bit 5, a ; 2nd
 	jp nz,SPR_jump
 	res FLG_jmpUsed, (iy+asm_flag2)
-	bit 7, a ; suppr
+	bit kbitMode, a ; suppr
 	ret nz
 	ld a,($F5001C)
 	bit 6, a ; clear
@@ -348,7 +456,7 @@ noChangingOfGravity:
 
 	bit FLG_spaceshipOn, (iy+asm_flag1)
 	jp nz,spaceshipOff
-	jp spaceshipOn
+	call spaceshipOn
 afterChangingOfVehicle:
 
 	; Checking whether or not the level is done
@@ -531,7 +639,7 @@ dispCharacter:
 	ld hl,vRam
 	sbc hl,de
 	jp nc,die-1
-	ld hl,vRam+(320*240*2)
+	ld hl,vRam+(320*235*2)
 	or a
 	sbc hl,de
 	jp c,die-1
@@ -728,6 +836,13 @@ erasingElTailX:
 	ld hl,(currentDrawLoc)
 	add hl,bc
 	ex de,hl
+	ld hl,vRam
+	sbc hl,de
+	jp nc,die
+	ld hl,vRam+(320*235*2)
+	or a
+	sbc hl,de
+	jp c,die
 	ld hl,(currentSprBuf)
 	ld a,(spriteSize)
 eraseSpriteY:
@@ -893,7 +1008,6 @@ SPR_jump:
 	
 	res FLG_jmpAgain, (iy+asm_flag1)
 	set FLG_jmpUsed, (iy+asm_flag2)
-
 	set FLG_jumping, (iy+asm_flag1)
 	ld hl,jmpSpeedLUT
 	bit FLG_rvrsGravity, (iy+asm_flag1)
@@ -1290,12 +1404,12 @@ NORM_jmpTile_jumping:
 NORM_noJmpTile_jumping:
 	;	Collisions (if jumping)
 	pop hl
-	ld de,beg_sprite
+	ld de,beg_sprite+3
 	add hl,de
 	ld a,(hl) ; top left hand corner
 	cp BGCl
 	jp nz,die
-	ld de,(13*320)+20 ; bottom right hand corner
+	ld de,(13*320)+17 ; right side
 	add hl,de
 	ld a,(hl)
 	cp BGCl
@@ -1312,7 +1426,7 @@ NORM_noJmpTile_jumping:
 	ld a,b
 	jp z,die
 NORM_noAmbiguity:
-	ld de,(6*320)-6
+	ld de,(6*320)-6 ; bottom right hand corner
 	add hl,de
 	ld a,(hl)
 	cp BGCl
@@ -1323,7 +1437,7 @@ NORM_noAmbiguity:
 	jr c,++_
 	cp 0FAh
 	jr nc,++_
-_: 
+_:
 	ex de,hl
 	or a
 	sbc hl,hl
@@ -2744,7 +2858,7 @@ addHL:
 
 spaceshipOn:
 	bit FLG_spaceshipOn, (iy+asm_flag1)
-	jp nz,afterChangingOfVehicle
+	ret nz
 	
 	;	Erasing previous square
 	ld hl,(currentSprBuf)
@@ -2779,7 +2893,7 @@ ON_SPHP_eraseSpriteY:
 	ld (spriteSize),hl
 	set FLG_spaceshipOn, (iy+asm_flag1)
 	res FLG_jmpAgain, (iy+asm_flag1)
-	jp afterChangingOfVehicle
+	ret
 	
 spaceshipOff:
 	bit FLG_spaceshipOn, (iy+asm_flag1)
@@ -3087,8 +3201,11 @@ die:
 crashed:
 
 	; New High Score ?
+	ld hl,(begLvlToPlay)
+	ld de,0
 	xor a
-	call addHighScore
+	sbc hl,de
+	call z,addHighScore ; if we play by the beginning
 
 	;	Erasing elements of the tail (one by one)
 	ld hl,-(TAIL_nb*SCROLL_spd)/2
@@ -3180,8 +3297,6 @@ DEBUG:
 	push bc
 	push de
 	push hl
-	push ix
-	push iy
 	ld a,$10
 	call _DelayTenTimesAms
 	DI
@@ -3206,8 +3321,6 @@ scan_wait2:
 	or a
 	sbc hl,de
 	jr z,DEBUG_LOOP
-	pop iy
-	pop ix
 	pop hl
 	pop de
 	pop bc
@@ -3225,13 +3338,13 @@ scan_wait2:
 ;	pop hl
 ;	ret
 
-	.dl -320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10
+	.dl -320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10
 jmpSpeedLUT:
 	.dl -320*10,-320*9,-320*8,-320*6,-320*5,-320*4,-320*4,-320*3,-320*3,-320*2,-320*1,320*0
 jmpSpeedLUT_0:
 	.dl 320*0,320*1,320*2,320*3,320*3,320*4,320*4,320*5,320*6,320*8,320*9
 jmpSpeedLUT_rvrs:
-	.dl 320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10
+	.dl 320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10
 
 spcshpSpeedLUT_beg:
 	.dl -320*6
