@@ -9,19 +9,18 @@ The following is required
 * The latest TI Connect CE (not SmartView) found [here](https://education.ti.com/en/software/update/84-ce-software-update)
 
 The following is recommended to improve programs however it is not required
-* The latest TI-84 Plus CE OS (see above for link)
+* The latest TI-84 Plus CE OS (find in "OS Versions" folder)
 
 ## App/OS Installation
+To install all standard games, etc, follow the "Standard Calculator Setup" instructions
 1. Connect calculator to computer via the USB cable
 2. Open TI-Connect
-3. If calculator version is not 5.3+ it is recommended to get the latest OS
-4. Navigate to the "All Files" folder within the "Games" folders, etc and select all programs (Ctrl+A to select all)
-5. Drag all app/program files from File Explorer onto the calculator shown on TI-Connect
-5. It is recommended to set all programs to be Archived where possible
-6. Note various programs may benefit from being renamed
+3. If calculator version is not 5.3+ it is recommended to get the latest OS by dragging the Ti84CEBundle file in "OS versions" onto the calculator
+4. Navigate to the chosen games folder
+5. Drag all files onto the calculator that are needed (Note: In the README files, they often state what you need to drag onto the calculator)
 
-Other apps can be found by searching "TI-84 Plus CE apps" on the internet and several should come up
-Note: Some apps may not work on the calculator as they were designed for other versions of the TI-84
+Other apps can be found by searching "TI-84 Plus CE programs" on the internet and several should come up
+Note: Programs that you wish to install must be for the TI-84 Plus CE, not another type of calculator as these will rarely work.
 
 Also, many apps are not used in the calculator and take up space. You can delete these by completing the following steps on the calculator:
 1. Press the following keys \[2nd]→\[+]→\[2]→\[1] to get through to memory management
