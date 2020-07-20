@@ -13,3 +13,8 @@ A detailed description of this may be found on the [Ti-Planet](https://tiplanet.
 1. Download [Tiled](https://www.mapeditor.org/index.html)
 2. Use the tileset in the "WIP" file
 3. Either open or create a new map
+
+## Maps not included in "-All Files" folder
+
+### Low Quality
+* Shiphard
