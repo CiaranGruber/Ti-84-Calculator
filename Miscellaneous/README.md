@@ -19,7 +19,9 @@ The following programs would benefit from being renamed in order to prevent conf
 ### Proof-of-concepts
 * Rotate and Zoom
 * Bounce
-* Instant Messenger - While not technically proof-of-concept, is too difficult to use practically
+
+### Too Large
+* GIF player - While the file is small, the required image files are too large
 
 ### Dangerous
 The below applications have not been included as they may break the calculator if used incorrectly. Use with caution.
