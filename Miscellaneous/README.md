@@ -15,6 +15,7 @@ The following programs would benefit from being renamed in order to prevent conf
 * BCEDF EBook Reader - Specific instructions in README (in folder)
 * Balloons Screensaver - Basic program with large storage requirements
 * Fractals - Fast Fractals, while not including the Sapinski Triangle, is better
+* Photoshop - While good, takes up large space include for saved files and is not used often
 
 ### Proof-of-concepts
 * Rotate and Zoom

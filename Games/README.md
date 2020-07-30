@@ -3,6 +3,7 @@
 This folder contains the vast collection of games available for the TI-84 Plus CE.
 
 ## App Renaming
+
 The following programs would benefit from being renamed in order to prevent confusion when selecting programs:
 * ADVENT -> CAVEADV (Reduces confusion with ADVENTUR) (Is a part of Colossal Cave Adventure)
 * AGD -> GEODASH
@@ -39,9 +40,11 @@ Programs >100KB have not been included in the "All Files" folder due to large si
 
 ### Programs not to be run
 Some programs may be part of other programs and are not designed to be run. These are all that apply:
-* PKSWTCH
-* ZPKEVO
 * CLR0VAR
+* GETLCD
+* PKSWTCH
+* SETLCD
+* ZPKEVO
 * θFMT
 * θVC
 
