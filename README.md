@@ -9,13 +9,13 @@ The following is required
 * The latest TI Connect CE (not SmartView) found [here](https://education.ti.com/en/software/update/84-ce-software-update)
 
 The following is recommended to improve programs however it is not required
-* The latest TI-84 Plus CE OS (find in "OS Versions" folder)
+* The TI-84 Plus CE OS version 5.4 (do not get 5.6 unless absolutely necessary as it makes it harder to play games)
 
 ## App/OS Installation
 To install all standard games, etc, follow the "Standard Calculator Setup" instructions
 1. Connect calculator to computer via the USB cable
 2. Open TI-Connect
-3. If calculator version is not 5.3+ it is recommended to get the latest OS by dragging the Ti84CEBundle file in "OS versions" onto the calculator
+3. If calculator version is < 5.4 it is recommended to get (specifically) OS 5.4 by dragging the Ti84CEBundle file in "OS versions" onto the calculator
 4. Navigate to the chosen games folder
 5. Drag all files onto the calculator that are needed (Note: In the README files, they often state what you need to drag onto the calculator)
 
@@ -36,7 +36,7 @@ Also, many apps are not used in the calculator and take up space. You can delete
 
 ### Standard Calculator Setup
 For a standard set-up of the calculator, the following steps should be undertaken
-1. Update the OS if this is not already done
+1. Update the OS to 5.4 if this is not already done
 2. On the calculator delete the memory by going \[2nd]→\[+]→\[7]→Scroll right to ALL→\[1] (Press All Memory)→\[2]
 3. Go to the "Default Calculator Setup" folder and drag all files into the calculator
 4. After files have been transferred, install Cesium following steps outlined in its README document in the "Shells" folder
