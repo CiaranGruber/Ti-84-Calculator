@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>TI-Boy CE Readme</title>
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gMRAg80nfVmFwAAAJFJREFUOMulUzsShSAM3DhoIed4zWu8/zFsbDyHKeTN5DUwYxA/ga0gTDZZsiEAQD8KahCYXDrLvplyafAAIK4QfMSxmMsf12W+Tf58J3Xv0AhFMNKvjYDFtRHUgJIPZN9MU6DBA4H1FExeCFyW8LaL2LkmSMk5yVUcgTVBkpBLuYoXJZh3wrSN8ePOBLF4jQ3+va4zAbDbye4AAAAASUVORK5CYII=" />
+  <style>@keyframes blink{0%{}50%{background-color:transparent}100%{}}details-dialog{position:fixed;margin:10vh auto;top:0;left:50%;transform:translateX(-50%);z-index:999;max-height:80vh;width:448px}.octicon{display:inline-block;vertical-align:text-top;fill:currentColor}image-crop{display:block}body{margin:0}article,aside,details,figcaption,figure,footer,header,main,menu,nav,section{display:block}summary{display:list-item}audio,canvas,progress,video{display:inline-block}audio:not([controls]){display:none;height:0}progress{vertical-align:baseline}template,[hidden]{display:none}a{background-color:transparent}a:active,a:hover{outline-width:0}abbr[title]{border-bottom:none;text-decoration:underline;-webkit-text-decoration:underline dotted;text-decoration:underline dotted}b,strong{font-weight:inherit}b,strong{font-weight:bolder}dfn{font-style:italic}h1{font-size:2em;margin:0.67em 0}mark{background-color:#ffff00;color:#000000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}img{border-style:none}svg:not(:root){overflow:hidden}code,kbd,pre,samp{font-family:monospace, monospace;font-size:1em}figure{margin:1em 40px}hr{box-sizing:content-box;height:0;overflow:visible}button,input,select,textarea{font:inherit;margin:0}optgroup{font-weight:bold}button,input{overflow:visible}button,select{text-transform:none}button,html [type="button"],[type="reset"],[type="submit"]{-webkit-appearance:button}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner{border-style:none;padding:0}button:-moz-focusring,[type="button"]:-moz-focusring,[type="reset"]:-moz-focusring,[type="submit"]:-moz-focusring{outline:1px dotted ButtonText}fieldset{border:1px solid #c0c0c0;margin:0 2px;padding:0.35em 0.625em 0.75em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}textarea{overflow:auto}[type="checkbox"],[type="radio"]{box-sizing:border-box;padding:0}[type="number"]::-webkit-inner-spin-button,[type="number"]::-webkit-outer-spin-button{height:auto}[type="search"]{-webkit-appearance:textfield;outline-offset:-2px}[type="search"]::-webkit-search-cancel-button,[type="search"]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-input-placeholder{color:inherit;opacity:0.54}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}*{box-sizing:border-box}input,select,textarea,button{font-family:inherit;font-size:inherit;line-height:inherit}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";font-size:14px;line-height:1.5;color:#24292e;background-color:#ffffff}a{color:#0366d6;text-decoration:none}a:hover{text-decoration:underline}b,strong{font-weight:600}table{border-spacing:0;border-collapse:collapse}td,th{padding:0}button{cursor:pointer;border-radius:0}details summary{cursor:pointer}details:not([open])>*:not(summary){display:none !important}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:0}h1{font-size:32px;font-weight:600}h2{font-size:24px;font-weight:600}h3{font-size:20px;font-weight:600}h4{font-size:16px;font-weight:600}h5{font-size:14px;font-weight:600}h6{font-size:12px;font-weight:600}p{margin-top:0;margin-bottom:10px}small{font-size:90%}blockquote{margin:0}ul,ol{padding-left:0;margin-top:0;margin-bottom:0}ol ol,ul ol{list-style-type:lower-roman}ul ul ol,ul ol ol,ol ul ol,ol ol ol{list-style-type:lower-alpha}dd{margin-left:0}tt,code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;font-size:12px}pre{margin-top:0;margin-bottom:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;font-size:12px}.octicon{vertical-align:text-bottom}fieldset{padding:0;margin:0;border:0}label{font-weight:600}:-ms-input-placeholder{color:#6a737d}::-ms-input-placeholder{color:#6a737d}::placeholder{color:#6a737d}input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{margin:0;-webkit-appearance:none;appearance:none}.container{width:980px;margin-right:auto;margin-left:auto}.container::before{display:table;content:""}.container::after{display:table;clear:both;content:""}@keyframes tooltip-appear{from{opacity:0}to{opacity:1}}@keyframes fade-in{0%{opacity:0}100%{opacity:1}}@keyframes fade-out{0%{opacity:1}100%{opacity:0}}@keyframes fade-up{0%{opacity:0.8;transform:translateY(100%)}100%{opacity:1;transform:translateY(0)}}@keyframes fade-down{0%{opacity:1;transform:translateY(0)}100%{opacity:0.5;transform:translateY(100%)}}@keyframes grow-x{to{width:100%}}@keyframes shrink-x{to{width:0%}}@keyframes scale-in{0%{opacity:0;transform:scale(0.5)}100%{opacity:1;transform:scale(1)}}@keyframes pulse{0%{opacity:0.3}10%{opacity:1}100%{opacity:0.3}}@keyframes pulse-in{0%{transform:scale3d(1, 1, 1)}50%{transform:scale3d(1.1, 1.1, 1.1)}100%{transform:scale3d(1, 1, 1)}}.clearfix::before{display:table;content:""}.clearfix::after{display:table;clear:both;content:""}.markdown-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";font-size:16px;line-height:1.5;word-wrap:break-word}.markdown-body::before{display:table;content:""}.markdown-body::after{display:table;clear:both;content:""}.markdown-body>*:first-child{margin-top:0 !important}.markdown-body>*:last-child{margin-bottom:0 !important}.markdown-body a:not([href]){color:inherit;text-decoration:none}.markdown-body .anchor{float:left;padding-right:4px;margin-left:-20px;line-height:1}.markdown-body .anchor:focus{outline:none}.markdown-body p,.markdown-body blockquote,.markdown-body ul,.markdown-body ol,.markdown-body dl,.markdown-body table,.markdown-body pre{margin-top:0;margin-bottom:16px}.markdown-body hr{height:.25em;padding:0;margin:24px 0;background-color:#e1e4e8;border:0}.markdown-body blockquote{padding:0 1em;color:#6a737d;border-left:0.25em solid #dfe2e5}.markdown-body blockquote>:first-child{margin-top:0}.markdown-body blockquote>:last-child{margin-bottom:0}.markdown-body kbd{display:inline-block;padding:3px 5px;font-size:11px;line-height:10px;color:#444d56;vertical-align:middle;background-color:#fafbfc;border:solid 1px #c6cbd1;border-bottom-color:#959da5;border-radius:3px;box-shadow:inset 0 -1px 0 #959da5}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{margin-top:24px;margin-bottom:16px;font-weight:600;line-height:1.25}.markdown-body h1 .octicon-link,.markdown-body h2 .octicon-link,.markdown-body h3 .octicon-link,.markdown-body h4 .octicon-link,.markdown-body h5 .octicon-link,.markdown-body h6 .octicon-link{color:#1b1f23;vertical-align:middle;visibility:hidden}.markdown-body h1:hover .anchor,.markdown-body h2:hover .anchor,.markdown-body h3:hover .anchor,.markdown-body h4:hover .anchor,.markdown-body h5:hover .anchor,.markdown-body h6:hover .anchor{text-decoration:none}.markdown-body h1:hover .anchor .octicon-link,.markdown-body h2:hover .anchor .octicon-link,.markdown-body h3:hover .anchor .octicon-link,.markdown-body h4:hover .anchor .octicon-link,.markdown-body h5:hover .anchor .octicon-link,.markdown-body h6:hover .anchor .octicon-link{visibility:visible}.markdown-body h1 tt,.markdown-body h1 code,.markdown-body h2 tt,.markdown-body h2 code,.markdown-body h3 tt,.markdown-body h3 code,.markdown-body h4 tt,.markdown-body h4 code,.markdown-body h5 tt,.markdown-body h5 code,.markdown-body h6 tt,.markdown-body h6 code{font-size:inherit}.markdown-body h1{padding-bottom:0.3em;font-size:2em;border-bottom:1px solid #eaecef}.markdown-body h2{padding-bottom:0.3em;font-size:1.5em;border-bottom:1px solid #eaecef}.markdown-body h3{font-size:1.25em}.markdown-body h4{font-size:1em}.markdown-body h5{font-size:0.875em}.markdown-body h6{font-size:0.85em;color:#6a737d}.markdown-body ul,.markdown-body ol{padding-left:2em}.markdown-body ul ul,.markdown-body ul ol,.markdown-body ol ol,.markdown-body ol ul{margin-top:0;margin-bottom:0}.markdown-body li{word-wrap:break-all}.markdown-body li>p{margin-top:16px}.markdown-body li+li{margin-top:.25em}.markdown-body dl{padding:0}.markdown-body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:600}.markdown-body dl dd{padding:0 16px;margin-bottom:16px}.markdown-body table{display:block;width:100%;overflow:auto}.markdown-body table th{font-weight:600}.markdown-body table th,.markdown-body table td{padding:6px 13px;border:1px solid #dfe2e5}.markdown-body table tr{background-color:#ffffff;border-top:1px solid #c6cbd1}.markdown-body table tr:nth-child(2n){background-color:#f6f8fa}.markdown-body table img{background-color:transparent}.markdown-body img{max-width:100%;box-sizing:content-box;background-color:#ffffff}.markdown-body img[align=right]{padding-left:20px}.markdown-body img[align=left]{padding-right:20px}.markdown-body code,.markdown-body tt{padding:0.2em 0.4em;margin:0;font-size:85%;background-color:rgba(27,31,35,0.05);border-radius:3px}.markdown-body code br,.markdown-body tt br{display:none}.markdown-body del code{text-decoration:inherit}.markdown-body pre{word-wrap:normal}.markdown-body pre>code{padding:0;margin:0;font-size:100%;word-break:normal;white-space:pre;background:transparent;border:0}.markdown-body pre{padding:16px;overflow:auto;font-size:85%;line-height:1.45;background-color:#f6f8fa;border-radius:3px}.markdown-body pre code,.markdown-body pre tt{display:inline;max-width:auto;padding:0;margin:0;overflow:visible;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}.boxed-group{position:relative;margin-bottom:30px;border-radius:3px}.boxed-group>h3{display:block;padding:9px 10px 10px;margin:0;font-size:14px;line-height:17px;background-color:#f6f8fa;border:1px solid rgba(27,31,35,0.15);border-bottom:0;border-radius:3px 3px 0 0}.boxed-group>h3 a{color:inherit}g-emoji{font-family:"Apple Color Emoji", "Segoe UI", "Segoe UI Emoji", "Segoe UI Symbol";font-size:18px;font-weight:400;line-height:20px;vertical-align:middle}g-emoji img{width:1em;height:1em}include-fragment,poll-include-fragment{display:block}kbd{display:inline-block;padding:3px 5px;font:11px "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;line-height:10px;color:#444d56;vertical-align:middle;background-color:#fafbfc;border:solid 1px #d1d5da;border-bottom-color:#c6cbd1;border-radius:3px;box-shadow:inset 0 -1px 0 #c6cbd1}@keyframes ellipsis{from{width:2px}to{width:12px}}body{min-width:1020px;word-wrap:break-word}@keyframes rotate{0%{transform:rotate(0)}100%{transform:rotate(-360deg)}}rect{shape-rendering:crispedges}@keyframes broadCastMaskFade{0%{opacity:0}30%{opacity:1}70%{opacity:1}100%{opacity:0}}@keyframes fadeOut{0%{opacity:1}100%{opacity:0}}@keyframes dropBox{0%{opacity:1;transform:translateY(-110%)}7%{opacity:1;transform:translateY(20%);transform:translateX(0)}80%{opacity:1}100%{opacity:0;transform:translateX(-250%)}}@media print{.markdown-body h2{page-break-after:avoid}.markdown-body pre>code{white-space:pre-wrap}}@keyframes show-pane{0%{transform:translateX(390px)}100%{transform:translateX(0)}}.readme .markdown-body{padding:45px;word-wrap:break-word;background-color:#ffffff;border:1px solid #dddddd;border-bottom-right-radius:3px;border-bottom-left-radius:3px}@keyframes ellipsis{from{width:2px}to{width:16px}}@keyframes toggle-color{0%{background-color:transparent}50%{color:#4c4a42;background-color:#fff9ea;border-color:#dfd8c2}100%{background-color:transparent}}hr{border-bottom-color:#eeeeee}@font-face{font-family:Roboto;font-style:normal;font-weight:300;src:local("Roboto Light"),local("Roboto-Light"),url(data:font/woff;base64,PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDMuMiBGaW5hbC8vRU4iPgo8dGl0bGU+NDA0IE5vdCBGb3VuZDwvdGl0bGU+CjxoMT5Ob3QgRm91bmQ8L2gxPgo8cD5UaGUgcmVxdWVzdGVkIFVSTCB3YXMgbm90IGZvdW5kIG9uIHRoZSBzZXJ2ZXIuICBJZiB5b3UgZW50ZXJlZCB0aGUgVVJMIG1hbnVhbGx5IHBsZWFzZSBjaGVjayB5b3VyIHNwZWxsaW5nIGFuZCB0cnkgYWdhaW4uPC9wPgo=) format("woff")}@font-face{font-family:Roboto;font-style:normal;font-weight:400;src:local("Roboto"),local("Roboto-Regular"),url(data:font/woff;base64,PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDMuMiBGaW5hbC8vRU4iPgo8dGl0bGU+NDA0IE5vdCBGb3VuZDwvdGl0bGU+CjxoMT5Ob3QgRm91bmQ8L2gxPgo8cD5UaGUgcmVxdWVzdGVkIFVSTCB3YXMgbm90IGZvdW5kIG9uIHRoZSBzZXJ2ZXIuICBJZiB5b3UgZW50ZXJlZCB0aGUgVVJMIG1hbnVhbGx5IHBsZWFzZSBjaGVjayB5b3VyIHNwZWxsaW5nIGFuZCB0cnkgYWdhaW4uPC9wPgo=) format("woff")}@font-face{font-family:Roboto;font-style:normal;font-weight:500;src:local("Roboto Medium"),local("Roboto-Medium"),url(data:font/woff;base64,PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDMuMiBGaW5hbC8vRU4iPgo8dGl0bGU+NDA0IE5vdCBGb3VuZDwvdGl0bGU+CjxoMT5Ob3QgRm91bmQ8L2gxPgo8cD5UaGUgcmVxdWVzdGVkIFVSTCB3YXMgbm90IGZvdW5kIG9uIHRoZSBzZXJ2ZXIuICBJZiB5b3UgZW50ZXJlZCB0aGUgVVJMIG1hbnVhbGx5IHBsZWFzZSBjaGVjayB5b3VyIHNwZWxsaW5nIGFuZCB0cnkgYWdhaW4uPC9wPgo=) format("woff")}@font-face{font-family:Roboto;font-style:italic;font-weight:400;src:local("Roboto Italic"),local("Roboto-Italic"),url(data:font/woff;base64,PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDMuMiBGaW5hbC8vRU4iPgo8dGl0bGU+NDA0IE5vdCBGb3VuZDwvdGl0bGU+CjxoMT5Ob3QgRm91bmQ8L2gxPgo8cD5UaGUgcmVxdWVzdGVkIFVSTCB3YXMgbm90IGZvdW5kIG9uIHRoZSBzZXJ2ZXIuICBJZiB5b3UgZW50ZXJlZCB0aGUgVVJMIG1hbnVhbGx5IHBsZWFzZSBjaGVjayB5b3VyIHNwZWxsaW5nIGFuZCB0cnkgYWdhaW4uPC9wPgo=) format("woff")}@keyframes RotateSlot{0%{margin-top:0}3%{margin-top:-2em}20%{margin-top:-2em}23%{margin-top:-4em}40%{margin-top:-4em}43%{margin-top:-6em}60%{margin-top:-6em}63%{margin-top:-8em}90%{margin-top:-8em}93%{margin-top:0}100%{margin-top:0}}@keyframes appsClusterFloat{0%{top:0}40%{top:8px}100%{top:0}}@keyframes connect_four{from{width:0}to{width:280px}}
+  </style>
+</head>
+<body>
+  <div>
+    <div data-autorefresh-url="">
+    
+      <div role="main">
+        <div class="container">
+          <div>
+            <div class="readme boxed-group clearfix">
+              
+                <h3>
+                  <span class="octicon"></span>
+                  TI-Boy CE Readme
+                </h3>
+              
+              <article class="markdown-body" itemprop="text">
+                <h1>
+<a class="anchor" href="#ti-boy-ce" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>TI-Boy CE Alpha v0.1.3</h1>
+<p>TI-Boy CE is a Game Boy emulator for the TI-84 Plus CE and the TI-83 Premium CE graphing calculators.</p>
+<p>Currently only the original Game Boy is supported, no Game Boy Color (and never Game Boy Advance).</p>
+<p>This emulator is currently in the alpha state, so while it is intended to be stable, it is possible that it could crash and cause data loss. It is advised to put any important files in Archive memory before running the emulator.</p>
+<h2>
+<a class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h2>
+<ul>
+<li>Emulates original Game Boy hardware (except audio and linking)</li>
+<li>Emulates real-time clock for certain cartridges</li>
+<li>Save states with compression</li>
+<li>Fullscreen and 1:1 scaling modes (with optional skin)</li>
+<li>Automatic and manual frameskip</li>
+<li>Turbo mode (with speed display)</li>
+<li>GBC-style selectable color palettes for Game Boy games</li>
+<li>Customizable controls</li>
+</ul>
+<h2>
+<a class="anchor" href="#converting-rom-files" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Converting ROM Files</h2>
+<p>The easiest method is to use the online converter <a href="https://calc84maniac.github.io/tiboyce/converter" rel="nofollow">here</a>.
+All conversion is done locally in your browser, so there's no need to worry about uploading copyrighted data.</p>
+<p>Alternatively, a command-line utility (tiboyce-romgen.exe) to convert ROM files to TI AppVars is included. There are a couple of ways to do this:</p>
+<ol>
+<li>
+<p>Open a command prompt and navigate to the directory containing the utility using <code>cd</code>. Then run the following:</p>
+<pre><code>tiboyce-romgen.exe -t "Game Title Here" "path\to\romfile" NamePrefix
+</code></pre>
+</li>
+<li>
+<p>Drag-and-drop a ROM file onto the utility, which will then prompt for a game title and a name prefix.</p>
+</li>
+</ol>
+<p>Note that the name prefix provided for the ROM must be at most 5 characters long. This is because the remaining 3 characters are used for naming additional files created by the utility and the emulator itself. The game title provided will be displayed in the emulator's ROM list.</p>
+<p>The utility will generate multiple AppVar (*.8xv) files with the given prefix. Send all of them to the calculator in Archive memory.</p>
+<p>If you get a missing DLL error when running the command-line utility, you may need to install the <a href="https://support.microsoft.com/en-us/help/2999226/update-for-universal-c-runtime-in-windows">Universal C Runtime</a>.</p>
+<p>To convert save files between PC and AppVar formats, see the <a href="#converting-save-files">Converting Save Files</a> section below.</p>
+<h2>
+<a class="anchor" href="#running-the-emulator" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running the emulator</h2>
+<p>Send the <code>TIBOYCE.8xp</code> and <code>TIBoyDat.8xv</code> files to the calculator. Optionally also send the <code>TIBoySkn.8xv</code> file which contains a skin image.</p>
+<p>If your calculator is running OS v5.3 or newer, you can keep all of these files in Archive and run <code>prgmTIBOYCE</code> from the <kbd>prgm</kbd> menu.</p>
+<p>If your calculator is older than OS v5.3, the <code>TIBOYCE</code> program must be unarchived. Run it with <code>Asm(prgmTIBOYCE)</code>.</p>
+<p>You should now see a list of the ROMs on the calculator. Choose one with <kbd>↑</kbd> <kbd>↓</kbd> and start it with <kbd>2nd</kbd> <kbd>enter</kbd>.</p>
+<h2>
+<a class="anchor" href="#default-controls" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Default controls</h2>
+<h3>
+<a class="anchor" href="#game-controls" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Game controls:</h3>
+<ul>
+<li>D-Pad: <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd>
+</li>
+<li>A: <kbd>2nd</kbd>
+</li>
+<li>B: <kbd>alpha</kbd>
+</li>
+<li>Start: <kbd>mode</kbd>
+</li>
+<li>Select: <kbd>XTθn</kbd>
+</li>
+</ul>
+<h3>
+<a class="anchor" href="#emulator-controls" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Emulator controls:</h3>
+<ul>
+<li>Open menu: <kbd>clear</kbd>
+</li>
+<li>Turbo mode: <kbd>zoom</kbd>
+</li>
+<li>Save state: <kbd>sto&gt;</kbd>
+</li>
+<li>Load state: <kbd>ln</kbd>
+</li>
+<li>State slot: <kbd>log</kbd> + <kbd>0</kbd>-<kbd>9</kbd>
+</li>
+<li>Quick exit (non-configurable): <kbd>on</kbd>
+</li>
+</ul>
+<h3>
+<a class="anchor" href="#menu-controls-non-configurable" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Menu controls (non-configurable):</h3>
+<ul>
+<li>Choose menu item: <kbd>↑</kbd> <kbd>↓</kbd>
+</li>
+<li>Change option: <kbd>←</kbd> <kbd>→</kbd>
+</li>
+<li>Select item: <kbd>2nd</kbd> <kbd>enter</kbd>
+</li>
+<li>Close menu: <kbd>clear</kbd>
+</li>
+</ul>
+<h2>
+<a class="anchor" href="#file-types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>File Types</h2>
+<p>The various files used by the emulator are as follows (replace Name with ROM prefix and # with digits):</p>
+<table>
+<thead>
+<tr>
+<th align="left">File</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">Name.8xv</td>
+<td align="left">The file specifying the game title and how large the ROM is.</td>
+</tr>
+<tr>
+<td align="left">NameR##.8xv</td>
+<td align="left">Multiple files containing the actual ROM data.</td>
+</tr>
+<tr>
+<td align="left">NameSAV.8xv</td>
+<td align="left">The contents of the battery-backed cartridge save data.</td>
+</tr>
+<tr>
+<td align="left">NameStA.8xv</td>
+<td align="left">The automatic save state for this game.</td>
+</tr>
+<tr>
+<td align="left">NameSt#.8xv</td>
+<td align="left">The manual save state for the given numbered slot.</td>
+</tr>
+<tr>
+<td align="left">NameSv#.8xv</td>
+<td align="left">The cartridge save associated with a numbered save state.</td>
+</tr>
+<tr>
+<td align="left">TIBoyCE.8xp</td>
+<td align="left">The executable launcher.</td>
+</tr>
+<tr>
+<td align="left">TIBoyCfg.8xv</td>
+<td align="left">The current emulator configuration.</td>
+</tr>
+<tr>
+<td align="left">TIBoyDat.8xv</td>
+<td align="left">The core emulator data, loaded by the launcher.</td>
+</tr>
+<tr>
+<td align="left">TIBoySkn.8xv</td>
+<td align="left">An optional skin to be displayed in “no scaling” mode.</td>
+</tr>
+</tbody>
+</table>
+<p>Note that save states cannot be loaded properly if the associated cartridge save data file is deleted or replaced. When transferring save states, make sure to include both the <code>St#</code> and <code>Sv#</code> files. However, this doesn't apply to games that have no cartridge save data in the first place.</p>
+<h2>
+<a id="converting-save-files" class="anchor" href="#converting-save-files" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Converting Save Files</h2>
+<p>You can convert between PC emulator and TI-Boy CE save file formats using the provided utilities.</p>
+<p>Note that only cartridge save files (<code>*.sav</code> or <code>*.srm</code> on PC or <code>*SAV.8xv</code> on calculator) may be converted. Save states are emulator-specific and cannot be converted.</p>
+<p>The easiest method is to use the online converter <a href="https://calc84maniac.github.io/tiboyce/saveconverter" rel="nofollow">here</a>.
+All conversion is done locally in your browser, so there's no need to worry about uploading personal data.</p>
+<p>Alternatively, a command-line utility (tiboyce-convertsav.exe) to convert between save file formats is included. There are a couple of ways to do this:</p>
+<ol>
+<li>
+<p>Open a command prompt and navigate to the directory containing the utility using <code>cd</code>. Then run the following:</p>
+<pre><code>tiboyce-convertsav.exe "path\to\inputfile" "path\to\outputfile"
+</code></pre>
+</li>
+<li>
+<p>Drag-and-drop a save file onto the utility, which will then prompt for an output file name.</p>
+</li>
+</ol>
+<p>Note that when creating a <code>*SAV.8xv</code> AppVar, the name prefix provided must be the same as the converted ROM, or TI-Boy CE will not load it. This utility may also be used to change the prefix of a save AppVar if a ROM was converted with a different name.</p>
+<p>If you get a missing DLL error when running the command-line utility, you may need to install the <a href="https://support.microsoft.com/en-us/help/2999226/update-for-universal-c-runtime-in-windows">Universal C Runtime</a>.</p>
+<h2>
+<a class="anchor" href="#issues-bugs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Issues / Bugs</h2>
+<p>Report issues / bugs to the issue tracker, found here:</p>
+<p><a href="https://github.com/calc84maniac/tiboyce/issues">https://github.com/calc84maniac/tiboyce/issues</a></p>
+<h2>
+<a class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
+<p>TI-Boy CE — a Game Boy emulator for the TI-84 Plus CE calculator family.
+Copyright © 2018 – 2019 Brendan Fletcher</p>
+
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  <div>&nbsp;</div>
+  </div>
+</body>
+</html>

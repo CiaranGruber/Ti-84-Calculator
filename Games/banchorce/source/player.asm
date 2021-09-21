@@ -7,9 +7,8 @@
 
 ;------------------------------------------------
 ; playerUp - Move player up
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 playerUp:
         xor     a
@@ -18,6 +17,7 @@ playerUp:
         ld      a,(hl)
         or      a
         jp      z,upMap
+#ifndef NO_CLIP
         ld      l,a
         ld      a,(x)
         inc     a
@@ -28,23 +28,24 @@ playerUp:
         add     a,6
         call    checkTile
         ret     nc
+#endif
         ld      hl,y
         dec     (hl)
         ret
 
 ;------------------------------------------------
 ; playerDown - Move player down
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 playerDown:
         ld      a,1
         ld      (playerDir),a
         ld      hl,y
         ld      a,(hl)
-        cp      7*8
+        cp      8*(ROWS-1)
         jp      z,downMap
+#ifndef NO_CLIP
         add     a,7
         ld      l,a
         ld      a,(x)
@@ -59,15 +60,15 @@ playerDown:
         add     a,6
         call    checkTile
         ret     nc
+#endif
         ld      hl,y
         inc     (hl)
         ret
 
 ;------------------------------------------------
 ; playerLeft - Move player left
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 playerLeft:
         ld      a,2
@@ -76,6 +77,7 @@ playerLeft:
         ld      a,(hl)
         or      a
         jp      z,leftMap
+#ifndef NO_CLIP
         ld      hl,(y)
         inc     l
         call    checkTile
@@ -87,23 +89,24 @@ playerLeft:
         ld      a,h
         call    checkTile
         ret     nc
+#endif
         ld      hl,x
         dec     (hl)
         ret
 
 ;------------------------------------------------
 ; playerRight - Move player right
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 playerRight:
         ld      a,3
         ld      (playerDir),a
         ld      hl,x
         ld      a,(hl)
-        cp      15*8
+        cp      8*(COLS-1)
         jp      z,rightMap
+#ifndef NO_CLIP
         ld      hl,(y)
         add     a,7
         inc     l
@@ -117,15 +120,15 @@ playerRight:
         add     a,7
         call    checkTile
         ret     nc
+#endif
         ld      hl,x
         inc     (hl)
         ret
 
 ;------------------------------------------------
 ; dPlayerUp - Move player up when fighting a demon
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 dPlayerUp:
         xor     a
@@ -139,58 +142,54 @@ dPlayerUp:
 
 ;------------------------------------------------
 ; dPlayerDown - Move player down when fighting a demon
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 dPlayerDown:
         ld      a,1
         ld      (playerDir),a
         ld      hl,y
         ld      a,(hl)
-        cp      64-8
+        cp      ROWS*8-8
         ret     z
         inc     (hl)
         ret
 
 ;------------------------------------------------
 ; dPlayerLeft - Move player left when fighting a demon
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 dPlayerLeft:
         ld      a,2
         ld      (playerDir),a
         ld      hl,x
         ld      a,(hl)
-        cp      DSXMIN+8
+        cp      8
         ret     z
         dec     (hl)
         ret
 
 ;------------------------------------------------
 ; dPlayerRight - Move player right when fighting a demon
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 dPlayerRight:
         ld      a,3
         ld      (playerDir),a
         ld      hl,x
         ld      a,(hl)
-        cp      DSXMAX-16
+        cp      COLS*8-16
         ret     z
         inc     (hl)
         ret
 
 ;------------------------------------------------
 ; checkTile - Check a tile to see if player can walk on it
-;
-; Input:    A = X
+;   input:  A = X
 ;           L = Y
-; Output:   HL => Tile
+;   output: HL => Tile
 ;           A = Tile
 ;           CA = Player can walk on it
 ;------------------------------------------------
@@ -202,26 +201,25 @@ __canWalkOver                           = $+1
 
 ;------------------------------------------------
 ; drawPlayer - Draw Rex
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 drawPlayer:
         ld      de,0
+        ld      bc,(y)
         ld      hl,(playerDir)
-        ld      h,24
+        ld      a,(attacking)
+        or      a
+        jr      z,drawPlayerNotAttacking
+        inc     a
+        jr      nz,drawPlayerAttacking
+drawPlayerNotAttacking:
+        ld      h,SPRITE_SIZE
         mlt     hl
         ld      e,l
-        ld      bc,(y)
         ld      a,(hurt)
         cp      INI_HURT
         jr      z,drawPlayerHurt
-        ld      a,(attacking)
-        or      a
-        jr      z,drawPlayerNormal
-        inc     a
-        jr      nz,drawPlayerAttacking
-drawPlayerNormal:
         ld      hl,sprPlayer1
         ld      a,(walkCnt)
         bit     2,a
@@ -229,71 +227,79 @@ drawPlayerNormal:
         ld      hl,sprPlayer2
 drawPlayerNow:
         add     hl,de
-        jp      graySprite
+        ld      e,b
+        ld      d,c
+        jp      drawSprite
 drawPlayerAttacking:
-        ld      a,e
-        add     a,a
-        ld      e,a
+        ld      h,SPRITE_SIZE*2
+        mlt     hl
+        ex      de,hl
         ld      hl,sprAttacking
         add     hl,de
+        ld      e,b
+        ld      d,c
+        push    de
         push    hl
-        call    graySprite
+        call    drawSprite
+        pop     hl
+        ld      bc,SPRITE_SIZE
+        add     hl,bc
         pop     de
-        ld      hl,24
-        add     hl,de
         ld      a,(playerDir)
-        ld      d,a
-        ld      a,8
-        bit     0,d
-        jr      nz,$+4
-        neg
-        ld      e,a
-        bit     1,d
-        ld      bc,(y)
-        jr      nz,dpaHorizontal
-        add     a,c
-        ld      c,a
-        jp      graySpriteClip
-dpaHorizontal:
-        add     a,b
         ld      b,a
-        jp      graySpriteClip
+        ld      a,8
+        bit     0,b
+        jr      nz,drawPlayerAfterNeg
+        neg
+drawPlayerAfterNeg:
+        bit     1,b
+        jr      nz,dpaHorizontal
+        add     a,d
+        ld      d,a
+        jp      drawSprite
+dpaHorizontal:
+        add     a,e
+        ld      e,a
+        jp      drawSprite
 drawPlayerHurt:
         ld      hl,sprPlayerHurt
         jr      drawPlayerNow
 
 ;------------------------------------------------
 ; decPlayerHearts - Take away some of the player's hearts
-;
-; Input:    B = How many bits of heart to take
-; Output:   None
+;   input:  B = How many bits of heart to take
+;   output: none
 ;------------------------------------------------
 decPlayerHearts:
+        REDRAW_HUD()
+__decPlayerHearts       = $
+        nop                                     ; will be set to SCF for Hard/Hell difficulty
+        jr      nc,decPlayerHeartsLoop
+        ld      a,b
+        srl     a
+        add     a,b
+        ld      b,a                             ; damage x 1.5 on Hard/Hell
+decPlayerHeartsLoop:
         ld      hl,heartLevel
         dec     (hl)
-        ld      a,(hl)
-        or      a
         jr      nz,endDecPlayerHearts
         ld      a,(hearts)
         or      a
-        jr      z,noDecPlayerHearts
+        ret     z
         ld      (hl),INI_HEART_LEVEL
         ld      hl,hearts
         dec     (hl)
 endDecPlayerHearts:
-        djnz    decPlayerHearts
-        ret
-noDecPlayerHearts:
-        ld      (hl),a
+        djnz    decPlayerHeartsLoop
         ret
 
 ;------------------------------------------------
-; healOneHeart - Heal one heart for player
-;
-; Input:    None
-; Output:   None
+; healOneHeart - heal one heart for player
+;   input:  none
+;   output: none
 ;------------------------------------------------
 healOneHeart:
+        REDRAW_HUD()
         ld      hl,hearts
         ld      a,(maxHearts)
         cp      (hl)
@@ -302,12 +308,38 @@ healOneHeart:
         ret
 
 ;------------------------------------------------
+; healHalfHeart - heal half a heart for player
+;   input:  none
+;   output: none
+;------------------------------------------------
+healHalfHeart:
+        REDRAW_HUD()
+        ld      a,(heartLevel)
+        add     a,ONE_HEART/2
+        cp      ONE_HEART+1
+        jr      c,healHalfHeartFinish
+        ld      c,a
+        ld      hl,hearts
+        ld      a,(maxHearts)
+        cp      (hl)
+        jr      z,healHalfHeartMax
+        inc     (hl)
+        ld      a,c
+        sub     ONE_HEART
+healHalfHeartFinish:
+        ld      (heartLevel),a
+        ret
+healHalfHeartMax:
+        ld      a,ONE_HEART
+        jr      healHalfHeartFinish
+
+;------------------------------------------------
 ; addGold - Add to player's gold
-;
-; Input:    HL = Gold to add
-; Output:   None
+;   input:  HL = Gold to add
+;   output: none
 ;------------------------------------------------
 addGold:
+        REDRAW_HUD()
         ld      de,(gold)
         add     hl,de
         ld      (gold),hl
@@ -317,44 +349,79 @@ addGold:
         ld      (gold),de
         ret
 
+#ifdef GOLD_GIVE
+goldGive:
+        push    af
+        ld      hl,2000
+        call    addGold
+        pop     af
+        ret
+#endif
+
 ;------------------------------------------------
-; playerDead - Duh
-;
-; Input:    None
-; Output:   None
+; playerDead - Ouchie
+;   input:  none
+;   output: none
 ;------------------------------------------------
 playerDead:
         xor     a
         ld      (hurt),a
         ld      (frame),a
-; pause for a bit
-        call    copyBuffers
-        call    drawPlayer
-        call    showGray
-        ld      bc,200000
+        ; pause for a bit
+        ld      bc,50000
         call    waitBC
-; show explosion
+        ; show explosion
         call    clearAnimTable
         ld      bc,(y)
         call    newAnim
         ld      b,8
 playerExplode:
         push    bc
-        call    copyBuffers
+        call    drawMap
+        ld      a,HUD_COUNT_MAX
+        call    drawHud
         call    drawAnims
-        call    showGray
+        call    vramFlip
         call    updateAnims
         ld      bc,15000
         call    waitBC
         pop     bc
         djnz    playerExplode
-; pause again
-        ld      bc,300000
+        ; pause again
+        ld      bc,100000
         call    waitBC
-
+        ; find map to revive player at (or if HELL difficulty, don't revive, it's game over!)
+        ld      a,(difficulty)
+        sub     3
+        jp      z,gameOver
+        inc     a
+        jr      nz,normalRevive                 ; if EASY or NORMAL, revive at a well
+        ; otherwise on HARD, revive either at Rex's house if the wooden shield has been obtained, or at the dungeon
+        ld      a,(woodenShield)
+        or      a
+        jr      nz,reviveAtHouse
+reviveAtDungeon:
+        xor     a
+        ld      hl,INI_YX_POS
+        jr      setHardRevive
+reviveAtHouse:
+        ld      a,MAP_REX_HOUSE
+        ld      hl,INI_YX_POS_REX_HOUSE
+setHardRevive:
+        ld      (mapNo),a
+        ld      (enterMapCoords),hl
+        jr      calcReviveHearts
+normalRevive:
         ld      a,(mapNo)
         or a \ sbc hl,hl \ ld l,a
         ld      de,reviveMapTable
+        inc     a                               ; map #255? if so, we're fighting a boss
+        jr      nz,findReviveTable
+        ld      a,(demon)
+        dec     a
+        LDHLA()
+        ld      de,reviveBossTable
+findReviveTable:
         add     hl,de
         ld      a,(hl)
         ld      (mapNo),a
@@ -371,18 +438,33 @@ findReviveCoords:
         add     hl,de
         ld      hl,(hl)
         ld      (enterMapCoords),hl
+calcReviveHearts:
         ld      a,1
         ld      (playerDir),a
         ld      a,(maxHearts)
+        ld      b,INI_HEART_LEVEL
         srl     a
-        adc     a,0
+        jr      nc,setReviveHearts
+        inc     a
+        srl     b
+setReviveHearts:
         ld      (hearts),a
+        ld      a,b
+        ld      (heartLevel),a
         ld      hl,(gold)
         push hl \ pop de
-        srl d \ rr e
-        srl d \ rr e
+        call    _setAtoHLU
+        ld      b,a
+        ld      a,(difficulty)
+        cp      2
+        ld      a,b
+        jr      nc,highGoldPenalty
+        srl a \ rr d \ rr e
+highGoldPenalty:
+        srl a \ rr d \ rr e
+        call    _setDEUtoA
         or      a
-        sbc     hl,de                           ; lose 1/4 Gold
+        sbc     hl,de                           ; lose 1/4 Gold (or 1/2 on HARD)
         ld      (gold),hl
         ld      a,TXT_DEAD
         call    textMessage
@@ -394,20 +476,26 @@ findReviveCoords:
         ld      (demon),a
         ld      hl,(enterMapCoords)
         ld      (y),hl                          ; Load Player X & Y coords
+        call    loadStdGfx
+        ld      de,map
         call    newMap
-        call    grayDrawMap
-        call    copyBuffers
-        call    showGray
+        call    drawMap
+        call    vramFlip
+        REDRAW_HUD()
         call    fadeIn
         jp      checkAreaName
 
 ;------------------------------------------------
-; calculateDamage - Calculate damage to player according to armor player has
-;
-; Input:    B = Full value
-; Output:   B = How much to hurt player
+; calculateDamage - Calculate damage to player according to armor player has (and difficulty)
+;   input:  B = Full value
+;   output: B = How much to hurt player
 ;------------------------------------------------
 calculateDamage:
+        ld      a,(difficulty)
+        or      a
+        jr      nz,calcArmorReduction
+        srl     b
+calcArmorReduction:
         ld      a,(lightArmor)
         or      a
         ret     z
@@ -425,9 +513,8 @@ reduceDamageByHalf:
 
 ;------------------------------------------------
 ; tryAttacking - Try to attack
-;
-; Input:    HL => Where to RET to
-; Output:   None
+;   input:  HL => Where to RET to
+;   output: none
 ;------------------------------------------------
 tryAttacking:
         push    hl
@@ -449,10 +536,48 @@ continueAttack:
         ret
 
 ;------------------------------------------------
+; updateItems - Update code to suit what items player has
+;   input:  none
+;   output: none
+;------------------------------------------------
+updateItems:
+        REDRAW_HUD()
+; First, check sword strength
+        ld      a,(legendarySword)
+        ld      b,SWORD_L_STR
+        or      a
+        jr      nz,setAttackStrength
+        ld      a,(superiorSword)
+        ld      b,SWORD_S_STR
+        or      a
+        jr      nz,setAttackStrength
+        ld      b,SWORD_B_STR
+setAttackStrength:
+        ld      a,b
+        ld      (attackStrength),a
+; Next, check what player can walk over
+        ld      a,(wingedBoots)
+        or      a
+        jr      z,checkAquaBoots
+        ld      a,CANT_WALK_OVER
+        ld      (__canWalkOver),a
+        ret
+checkAquaBoots:
+        ld      a,(aquaBoots)
+        or      a
+        jr      z,noWalkOverItems
+        ld      a,NEED_WINGED
+        ld      (__canWalkOver),a
+        ret
+noWalkOverItems:
+        ld      a,NEED_AQUA
+        ld      (__canWalkOver),a
+        ret
+
+;------------------------------------------------
 ; loadPlayerToCollide1 - Load player info into (collide1)
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 loadPlayerToCollide1:
         ld      hl,collide1
@@ -468,9 +593,8 @@ loadPlayerToCollide1:
 
 ;------------------------------------------------
 ; loadSwordToCollide1 - Load sword into (collide1)
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 loadSwordToCollide1:
         ld      de,(playerDir)
@@ -493,6 +617,63 @@ loadSwordToCollide1:
         ld      (hl),a
         inc     hl
         ld      (hl),3
+        ret
+
+;------------------------------------------------
+; clearOrbTable - clear orbTable
+;   input:  none
+;   output: none
+;------------------------------------------------
+clearOrbTable:
+        ld      hl,orbTable
+        ld      b,MAX_HEALTH_ORBS*ORB_ENTRY_SIZE
+        jp      _ld_hl_bz
+
+;------------------------------------------------
+; drawOrbs - draw health orbs
+;   input:  none
+;   output: none
+;------------------------------------------------
+drawOrbs:
+        ld      hl,orbTable
+        ld      b,MAX_HEALTH_ORBS
+drawOrbsLoop:
+        push    hl
+        push    bc
+        ld      a,(hl)
+        or      a
+        jr      z,endDrawOrbsLoop
+        inc     hl
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        ld      hl,sprOrb
+        call    drawSprite
+endDrawOrbsLoop:
+        pop     bc
+        pop     hl
+        ld      de,ORB_ENTRY_SIZE
+        add     hl,de
+        djnz    drawOrbsLoop
+        ret
+
+;------------------------------------------------
+; getEmptyOrbEntry - try to find an empty entry in orbTable
+;   input:  none
+;   output: HL => Start of entry (if one was found)
+;           CA = 1 if no entry was empty
+;------------------------------------------------
+getEmptyOrbEntry:
+        ld      hl,orbTable
+        ld      b,MAX_HEALTH_ORBS
+        ld      de,ORB_ENTRY_SIZE
+findEmptyOrbEntry:
+        ld      a,(hl)
+        or      a
+        ret     z
+        add     hl,de
+        djnz    findEmptyOrbEntry
+        scf
         ret
 
 .end

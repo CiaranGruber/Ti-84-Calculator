@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BanchorWorldEdit", "BanchorWorldEdit\BanchorWorldEdit.csproj", "{210622AC-9B4F-469D-836F-88EEFDD42509}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{210622AC-9B4F-469D-836F-88EEFDD42509}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{210622AC-9B4F-469D-836F-88EEFDD42509}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{210622AC-9B4F-469D-836F-88EEFDD42509}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{210622AC-9B4F-469D-836F-88EEFDD42509}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {18DCA4D5-5BA8-4739-ACD3-576435F808F8}
+	EndGlobalSection
+EndGlobal

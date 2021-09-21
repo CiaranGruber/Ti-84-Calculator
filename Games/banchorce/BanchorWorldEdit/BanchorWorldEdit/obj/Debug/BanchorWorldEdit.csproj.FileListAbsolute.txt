@@ -1,0 +1,26 @@
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\bin\Debug\BanchorWorldEdit.exe.config
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\bin\Debug\BanchorWorldEdit.exe
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\bin\Debug\BanchorWorldEdit.pdb
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.csprojAssemblyReference.cache
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.Properties.Resources.resources
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.csproj.GenerateResource.cache
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.csproj.CoreCompileInputs.cache
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.exe
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.pdb
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.FormMain.resources
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.FormWarp.resources
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.FormPerson.resources
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\bin\Debug\BanchorWorldEdit.exe.config
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\bin\Debug\BanchorWorldEdit.exe
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\bin\Debug\BanchorWorldEdit.pdb
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.csprojAssemblyReference.cache
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.FormMain.resources
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.FormPerson.resources
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.FormWarp.resources
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.Properties.Resources.resources
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.csproj.GenerateResource.cache
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.csproj.CoreCompileInputs.cache
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.exe
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.pdb
+C:\Users\jamesv\Documents\JV\jvti\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.FormChest.resources
+D:\Documents\Coding\Visual Studio Projects\BanchorWorldEdit\BanchorWorldEdit\obj\Debug\BanchorWorldEdit.FormChest.resources

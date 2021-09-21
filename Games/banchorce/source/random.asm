@@ -7,10 +7,9 @@
 
 ;------------------------------------------------
 ; random - Get a random number
-;
-; Author:   Joe Wingbermuehle <joewing@calc.org>
-; Input:    B = Upper limit + 1
-; Output:   A = 0 <= Random Number < B
+;   author: Joe Wingbermuehle
+;   input:  B = Upper limit + 1
+;   output: A = 0 <= Random Number < B
 ;------------------------------------------------
 random:
         push    hl

@@ -7,26 +7,27 @@
 
 ;------------------------------------------------
 ; clearChangeList - Clear changeList
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 clearChangeList:
         ld      hl,changeList
-        ld      b,MAX_CHANGES*3
+        ld      bc,MAX_CHANGES*3
 clearChangeListLoop:
         ld      (hl),255
         inc     hl
-        djnz    clearChangeListLoop
+        dec     bc
+        ld      a,b
+        or      c
+        jr      nz,clearChangeListLoop
         ret
 
 ;------------------------------------------------
 ; addToChangeList - Add an entry to changeList
-;
-; Input:    A = Map
+;   input:  A = Map
 ;           B = Tile
 ;           C = Offset
-; Output:   None
+;   output: none
 ;------------------------------------------------
 addToChangeList:
         ld      e,a                             ; E = Map
@@ -52,9 +53,8 @@ changeListEntryFound:
 
 ;------------------------------------------------
 ; executeChangeList - Run the change list
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 executeChangeList:
         ld      a,(mapNo)
@@ -71,7 +71,8 @@ executeChangeListLoop:
         ld      e,(hl)
         inc     hl
         ld      a,(hl)
-        ld      hl,map
+__changeListPtr         = $+1
+        ld      hl,$000000
         add     hl,de
         ld      (hl),a
         pop     hl

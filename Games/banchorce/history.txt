@@ -1,3 +1,45 @@
+v2.0.0 <> March 2021
+    - Updated to 8-bit colour.
+    - Increased map size to 16x12 tiles (up from 16x8).
+    - Updated map layouts to incorporate larger size.
+    - Added map compression.
+    - Added HUD around game screen and removed the redundant Inventory screen.
+    - Added crushing frames to stones and rocks (now takes 2 strikes to destroy them).
+    - Updated save game system to now have 3 slots.
+    - Fixed heart level bug (again?)
+    - Reduced the size of "Underground Passage" and "Dark Tunnel" to make room for extra dungeon content.
+    - Updated existing dungeon layouts.
+    - Added 2 extra dungeons and 2 extra bosses.
+    - Boss fights no longer take up maps in the world.
+    - Game will create an empty save file if there isn't one on the calculator already (and provided there is enough RAM).
+    - Updated King Heath boss fight (now charges at player when the player is in front of him, previously the charge was random).
+    - Updated Dezemon boss fight (now rolls around for longer to compensate for larger room).
+    - Updated Belkath boss fight (reduced the shooting frequency).
+    - Updated Anazar boss fight (made movement pattern smoother and slightly less predictable).
+    - Updated Banchor boss fight (charges after player for longer and has two shooting variations).
+    - Increased maximum Gold capacity to 99990 (previously 50000).
+    - Added Difficulty levels (Easy, Normal, Hard, Hell).
+    - Added Cesium icon.
+    - Added intro lore when starting a new game.
+    - Fixed bug with area names for transitional maps.
+    - Reduced enemy damage values.
+    - Revised boss damage values, including their bullets.
+    - Added many more in-game clues about item locations.
+    - Added more gold loot chests in dungeons to encourage exploration and reduce grinding.
+    - Added small visual clues to fake walls.
+    - Smoothed out enemy bullet movement.
+    - Enemy bullets are now deflected by the shield instead of despawning.
+    - Rewrote how enemy AI is handled to give more flexibility.
+    - Updated path finding for walking enemies such as Potato Bugs, Snakes, etc. so that they don't sit idle in a corner.
+    - Updated Frog jump pattern to have some variation.
+    - Updated Bee movement to have some variation in circle radius and direction.
+    - Updated Bat movement to swoop at the player in arc patterns.
+    - Updated Tree Monsters to move more irregularly.
+    - Can now pause game during boss fights.
+    - Added chance for health orbs to drop from enemies to heal the player half a heart.
+    - Increased player damage cooldown.
+
+
 v1.2.1 <> October 2017
     - Fixed the "warp into wall" bug in one of the maps in the Pyramid of Snakes.
     - Can now press [2nd] to finish talking/reading/viewing inventory.

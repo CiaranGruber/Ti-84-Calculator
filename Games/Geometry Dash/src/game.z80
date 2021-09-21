@@ -44,7 +44,7 @@ playLevel_noextract:
 	ld de,vRam+(320*TIL_sizeY*MAP_sizeY)+1
 	ld bc,320*1
 	ldir
-	ld (hl),$7E
+	ld (hl),$7e
 	ld bc,320*240-((320*TIL_sizeY*MAP_sizeY)+(320*1))
 	ldir
 	ld hl,vRam+(320*TIL_sizeY*MAP_sizeY)+(320*240)
@@ -52,7 +52,7 @@ playLevel_noextract:
 	ld de,vRam+(320*TIL_sizeY*MAP_sizeY)+(320*240)+1
 	ld bc,320*1
 	ldir
-	ld (hl),$7E
+	ld (hl),$7e
 	ld bc,320*240-((320*TIL_sizeY*MAP_sizeY)+(320*1))
 	ldir
 
@@ -276,11 +276,6 @@ ANIM_scanWait:
 
 	ld hl,(Vcharacter_posY)
 	ld (prev_posY),hl
-	; DONE_dispStuffs :
-	;	Displays sprite on the other buffer
-	;	Swaps buffers
-	;	Erase old sprite
-	;call DONE_dispStuffs
 
 	; initializing the counter
 	xor a
@@ -411,7 +406,7 @@ SCROLL_noOverflow:
 	ld hl,(addrGravity)
 	ld hl,(hl)
 	sbc hl,de
-	jr nz,noChangingOfGravity
+	jr nc,noChangingOfGravity
 
 	ld hl,(addrGravity)
 	inc hl
@@ -451,7 +446,7 @@ noChangingOfGravity:
 	inc hl
 	inc hl
 	ld (addrSpaceship),hl
-	ld hl,nbChngGrvtyRmng
+	ld hl,nbChngSphpRmng
 	dec (hl)
 
 	bit FLG_spaceshipOn, (iy+asm_flag1)
@@ -638,11 +633,11 @@ dispCharacter:
 	push hl
 	ld hl,vRam
 	sbc hl,de
-	jp nc,die-1
+	jp nc,dieHard
 	ld hl,vRam+(320*235*2)
 	or a
 	sbc hl,de
-	jp c,die-1
+	jp c,dieHard
 	pop hl
 	ld a,(spriteSize)
 	ld b,a
@@ -803,7 +798,7 @@ notCurrBuf:
 	or a,4 ; bitLcdLnBuim
 	ld (bc),a
 	ld (mpLcdBase),hl
-waitForSync:            ; Wait fot the LCD to be ready to update
+waitForSync:            ; Wait for the LCD to be ready to update
 	ld a,(mpLcdRis)
 	and a,4 ; bitLcdLnBuim
 	jr z,waitForSync
@@ -868,7 +863,7 @@ spriteAlreadyErased:
 	bit FLG_jumping, (iy+asm_flag1)
 	jp z,SPR_jump
 	jp loop
-; ************** FIN DE LA BOUCLE PRINCIPAL
+; ************** FIN DE LA BOUCLE PRINCIPALE
 
 
 NEW_dispTwoTiles:
@@ -990,7 +985,7 @@ SPR_jump:
 	bit FLG_spaceshipOn, (iy+asm_flag1)
 	jp nz,SPCSHP_up
 
-	; we don't want the sprite to jump when at the end of the level
+	; we don't want the sprite to jump when it is at the end of the level
 	ld hl,(fstBlock)
 	ld de,(bytesToSkip)
 	or a
@@ -1005,7 +1000,7 @@ SPR_jump:
 
 	bit FLG_jumping, (iy+asm_flag1)
 	jr nz,planNewJump
-	
+
 	res FLG_jmpAgain, (iy+asm_flag1)
 	set FLG_jmpUsed, (iy+asm_flag2)
 	set FLG_jumping, (iy+asm_flag1)
@@ -1397,8 +1392,12 @@ NORM_jmpTile_jumping:
 
 	res FLG_jmpAgain, (iy+asm_flag1)
 	set FLG_jumping, (iy+asm_flag1)
+	set FLG_jmpUsed, (iy+asm_flag2)
 	ld hl,jmpSpeedLUT
 	ld (jmp_speed),hl
+	ld hl,0
+	ld (mn),hl
+	set FLG_topReached, (iy+asm_flag1)
 	pop hl
 	jp dispCharacter
 NORM_noJmpTile_jumping:
@@ -1498,15 +1497,29 @@ NORM_endJumping:
 	ld a,(hl)
 	cp 0FAh
 	jr nc,NORM_jmpTile
-	ld de,320*4-10
+	ld de,-320*3-10
+	add hl,de
+	ld a,(hl)
+	cp 0FAh
+	jr nc,NORM_jmpTile
+	ld de,-320*1-5
+	add hl,de
+	ld a,(hl)
+	cp 0FAh
+	jr nc,NORM_jmpTile
+	ld de,-320*2-5
 	add hl,de
 	ld a,(hl)
 	cp 0FAh
 	jr c,NORM_noJmpTile
 NORM_jmpTile:
+	res FLG_jmpUsed, (iy+asm_flag2)
 	set FLG_jumping, (iy+asm_flag1)
 	ld hl,jmpSpeedLUT-15
 	ld (jmp_speed),hl
+	set FLG_topReached, (iy+asm_flag1)
+	ld hl,0
+	ld (mn),hl
 	pop hl
 	jp dispCharacter
 NORM_noJmpTile:
@@ -1713,10 +1726,14 @@ RVRS_jmpTile_jumping:
 	jr c,RVRS_noJmpTile_jumping
 	bit FLG_jmpAgain, (iy+asm_flag1)
 	jr z,RVRS_noJmpTile_jumping
+
 	res FLG_jmpAgain, (iy+asm_flag1)
 	set FLG_jumping, (iy+asm_flag1)
 	ld hl,jmpSpeedLUT_rvrs
 	ld (jmp_speed),hl
+	ld hl,0
+	ld (mn),hl
+	set FLG_botReached, (iy+asm_flag1)
 	pop hl
 	jp dispCharacter
 RVRS_noJmpTile_jumping:
@@ -1792,6 +1809,9 @@ RVRS_jmpTile:
 	set FLG_jumping, (iy+asm_flag1)
 	ld hl,jmpSpeedLUT_rvrs+15
 	ld (jmp_speed),hl
+	ld hl,0
+	ld (mn),hl
+	set FLG_botReached, (iy+asm_flag1)
 	pop hl
 	jp dispCharacter
 RVRS_noJmpTile:
@@ -2168,6 +2188,18 @@ SCRUP_SYNC_IXSet:
 	jp afterScroll
 
 SCRUP_NEW_dispTilesVertScroll:
+	; Paramètres :
+	;	A = ?
+	;	Shadow B = ?
+	;	Shadow C = ?
+	ex af,af' 
+	exx
+	ld a,c
+	exx
+	or a	; on check que shadow c!=0
+	ret z
+	ex af,af'
+
 	push ix
 	push af
 	push hl
@@ -2287,7 +2319,7 @@ scrollDown:
 	ld d,a
 	cp TIL_sizeY
 	jr nz,SCRDW_noVerif
-	; checking if the top has been reached
+	; checking if the floor has been reached
 	ld hl,(bytesToSkip)
 	ld bc,(maxBytesToSkip)
 	or a
@@ -2566,10 +2598,10 @@ SCRDW_scrollDownSyncOtherBuf:
 	jp z,onlyScrollRight
 
 	; fixes a bug (try to scroll up when falling)
-	;ld hl,(Vcharacter_posY)
-	;ld de,320*70
-	;sbc hl,de
-	;jp c,SCRDW_scrollDownSyncOtherBuf
+	ld hl,(Vcharacter_posY)
+	ld de,320*70
+	sbc hl,de
+	jp c,SCRUP_scrollUpSyncOtherBuf
 	
 	ld de,(prev_speed)
 	push de
@@ -2707,6 +2739,18 @@ SCRDW_SYNC_twoTilesToDisp:
 	jp afterScroll
 
 SCRDW_NEW_dispTilesVertScroll:
+	; Paramètres :
+	;	A = ?
+	;	Shadow B = ?
+	;	Shadow C = ?
+	ex af,af'
+	exx
+	ld a,c
+	exx
+	or a
+	ret z
+	ex af,af'
+	
 	push ix
 	push af
 	push hl
@@ -3188,8 +3232,10 @@ game_pause:
 _PAUSE_pal:
 	.dw 00000h,0D002h,12288,0FFFFh
 
-
-	pop ix
+dieHard:
+	; die because the character is out of the VRam bounds
+	pop hl
+	jr crashed
 die:
 	; If jumping tile
 	cp $FA
@@ -3199,7 +3245,6 @@ die:
 	cp $7F
 	jp c,dispCharacter
 crashed:
-
 	; New High Score ?
 	ld hl,(begLvlToPlay)
 	ld de,0
@@ -3327,7 +3372,7 @@ scan_wait2:
 	pop af
 	ret
 
-;DEBUG_2:
+;DEBUG2:
 ;	push hl
 ;	push af
 ;	ld hl,(mpLcdPalette+(BGCl*2))
@@ -3338,13 +3383,13 @@ scan_wait2:
 ;	pop hl
 ;	ret
 
-	.dl -320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10
+	.dl -320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10,-320*10
 jmpSpeedLUT:
 	.dl -320*10,-320*9,-320*8,-320*6,-320*5,-320*4,-320*4,-320*3,-320*3,-320*2,-320*1,320*0
 jmpSpeedLUT_0:
 	.dl 320*0,320*1,320*2,320*3,320*3,320*4,320*4,320*5,320*6,320*8,320*9
 jmpSpeedLUT_rvrs:
-	.dl 320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10
+	.dl 320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10,320*10
 
 spcshpSpeedLUT_beg:
 	.dl -320*6

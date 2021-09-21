@@ -7,18 +7,17 @@
 
 ;------------------------------------------------
 ; checkChests - Check to see if player can open a chest
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 checkChests:
         ld      a,(playerDir)
         or      a
         ret     nz                              ; If player not facing up, can't open a chest
         ld      a,(playerOffset)
-        sub     16
+        sub     COLS
         ld      c,a                             ; C = Offset in map
-        ld      b,100
+        ld      b,100                           ; B = # chest entries to check
         ld      hl,chests
 checkChestsLoop:
         ld      a,(mapNo)
@@ -35,8 +34,9 @@ checkChestsLoop:
         dec     hl
         call    openChest
         call    updateItems
-        call    newMap
-        call    grayDrawMap
+        ld      hl,map
+        ld      (__changeListPtr),hl
+        call    executeChangeList
         jp      mainLoop
 notOpeningChest1:
         inc     hl
@@ -48,11 +48,10 @@ notOpeningChest2:
 
 ;------------------------------------------------
 ; openChest - Open a chest
-;
-; Input:    C = Offset to tile in map data
+;   input:  C = Offset to tile in map data
 ;           E = Chest item
 ;           HL => Chest entry
-; Output:   DE => Chest entry
+;   output: DE => Chest entry
 ;------------------------------------------------
 openChest:
         push    hl
@@ -61,10 +60,10 @@ openChest:
         ld      hl,map
         add     hl,bc
         ld      a,(hl)
-        cp      CHESTCLOSED
+        cp      CHEST_CLOSED
         jr      nz,afterOpenChestAnim
         ld      a,(mapNo)
-        ld      b,CHESTOPEN
+        ld      b,CHEST_OPEN
         push    de
         call    addToChangeList
         pop     de
@@ -81,18 +80,18 @@ afterOpenChestAnim:
         jp      (hl)
 
 chestItems:
-.dl     chestBluntSword,chestSuperiorSword,chestLegendarySword,chestWoodenShield,chestIronShield
-.dl     chestLightArmor,chestHeavyArmor,chestAquaBoots,chestWingedBoots,chestRingOfMight
-.dl     chestRingOfThunder,chestHeartPiece,chestCrystal1,chestCrystal2,chestCrystal3
-.dl     chestCrystal4,chestCrystal5,chestHeartContainer,chest1000Gold,chest5000Gold
-.dl     chestLifeRefill,chestWell,chestEmpty
+.dl     chestEmpty,chestBluntSword,chestSuperiorSword,chestLegendarySword,chestWoodenShield
+.dl     chestIronShield,chestLightArmor,chestHeavyArmor,chestAquaBoots,chestWingedBoots
+.dl     chestRingOfMight,chestRingOfThunder,chestHeartPiece,chestCrystal1,chestCrystal2
+.dl     chestCrystal3,chestCrystal4,chestCrystal5,chestCrystal6,chestCrystal7
+.dl     chestHeartContainer1,chestHeartContainer2,chestHeartContainer3,chest1000Gold,chest5000Gold
+.dl     chest10000Gold,chestLifeRefill,chestWell
 
 ;------------------------------------------------
 ; All chest scripts follow
-;
-; Input:    C = Offset to tile in map data
+;   input:  C = Offset to tile in map data
 ;           DE => Chest entry
-; Output:   None
+;   output: none
 ;------------------------------------------------
 chestSuperiorSword:
         ld      a,1
@@ -190,9 +189,19 @@ addHeartContainer:
         inc     (hl)
         jp      healOneHeart
 
-chestHeartContainer:
+chestHeartContainer1:
         ld      a,13
-        ld      bc,COST_HEART_CONTAINER
+        ld      bc,COST_HEART_CONTAINER_1
+        call    commonPurchaseCode
+        jr      addHeartContainer
+chestHeartContainer2:
+        ld      a,64
+        ld      bc,COST_HEART_CONTAINER_2
+        call    commonPurchaseCode
+        jr      addHeartContainer
+chestHeartContainer3:
+        ld      a,65
+        ld      bc,COST_HEART_CONTAINER_3
         call    commonPurchaseCode
         jr      addHeartContainer
 
@@ -224,42 +233,52 @@ chestWell:
 chestCrystal1:
         ld      hl,crystals
         jr      chestCrystal
-
 chestCrystal2:
         ld      hl,crystals+1
         jr      chestCrystal
-
 chestCrystal3:
         ld      hl,crystals+2
         jr      chestCrystal
-
 chestCrystal4:
         ld      hl,crystals+3
         jr      chestCrystal
-
 chestCrystal5:
         ld      hl,crystals+4
+        jr      chestCrystal
+chestCrystal6:
+        ld      hl,crystals+5
+        jr      chestCrystal
+chestCrystal7:
+        ld      hl,crystals+6
 
 chestCrystal:
         ld      (hl),1
         ld      a,255
         ld      (de),a
-; Check if player has all 5 crystals
+; Check if player has all 7 crystals
         ld      hl,crystals                     ; HL => Start of crystal data
         xor     a                               ; Continue until we find an empty crystal slot
-        ld      b,5                             ; 5 crystals to check
+        ld      b,7                             ; 7 crystals to check
 checkCrystalsLoop:
         add     a,(hl)                          ; If we have this crystal, add 1 to A
         inc     hl                              ; HL => Next crystal
         djnz    checkCrystalsLoop               ; Loop
-        cp      5                               ; Do we have 5 crystals?
-        jr      nz,after5Crystals               ; If not, player still hasn't gotten all 5 crystals
-; Add entry to change list to enable warps leading from Ancient Chamber to Hell
-        ld      a,215                           ; A = Map no.
-        ld      b,2                             ; B = New number of warps
-        ld      c,NUMWARPS_OFFSET               ; C = Offset
+        cp      7                               ; Do we have 7 crystals?
+        jr      nz,after7Crystals               ; If not, player still hasn't gotten all 7 crystals
+        ; add entries to change list to turn on portal from Ancient Chamber to Hell
+        ld      a,218
+        ld      bc,PORTAL_1*256+39
         call    addToChangeList
-after5Crystals:
+        ld      a,218
+        ld      bc,PORTAL_1*256+40
+        call    addToChangeList
+        ld      a,218
+        ld      bc,PORTAL_1*256+55
+        call    addToChangeList
+        ld      a,218
+        ld      bc,PORTAL_1*256+56
+        call    addToChangeList
+after7Crystals:
         ld      a,12
         jp      textMessage
 
@@ -267,11 +286,13 @@ chest1000gold:
         ld      b,14
         ld      hl,1000
         jr      chestGold
-
 chest5000gold:
         ld      b,15
         ld      hl,5000
         jr      chestGold
+chest10000gold:
+        ld      b,63
+        ld      hl,10000
 
 chestGold:
         ld      a,255
@@ -286,10 +307,9 @@ chestEmpty:
 
 ;------------------------------------------------
 ; tryPurchaseItem - Try to purchase an item
-;
-; Input:    A = Text message to show if item can't be purchased
+;   input:  A = Text message to show if item can't be purchased
 ;           BC = Cost of item
-; Output:   CA = 1 if item couldn't be purchased
+;   output: CA = 1 if item couldn't be purchased
 ;------------------------------------------------
 tryPurchaseItem:
         ld      hl,(gold)
@@ -305,11 +325,10 @@ cantPurchaseItem:
 
 ;------------------------------------------------
 ; commonPurchaseCode - Common set of code used in some of the chest scripts
-;
-; Input:    BC = Cost of item
+;   input:  BC = Cost of item
 ;           DE => Chest entry
 ;           HL = Misc data
-; Output:   DE => (Chest entry +2)
+;   output: DE => (Chest entry +2)
 ;           HL = Misc data
 ;------------------------------------------------
 commonPurchaseCode:
@@ -326,7 +345,7 @@ commonPurchaseCode:
         call    tryPurchaseItem
         pop     hl
         jr      c,dontPurchase
-        ld      a,22
+        xor     a                               ; set chest to "nothing left to sell"
         inc     de
         inc     de
         ld      (de),a
@@ -334,32 +353,5 @@ commonPurchaseCode:
 dontPurchase:
         pop     bc
         ret
-
-;------------------------------------------------
-; Chest Contents
-;------------------------------------------------
-;  0 - Blunt Sword
-;  1 - Superior Sword
-;  2 - Legendary Sword
-;  3 - Wooden Shield
-;  4 - Iron Shield
-;  5 - Light Armor
-;  6 - Heavy Armor
-;  7 - Aqua Boots
-;  8 - Winged Boots
-;  9 - Ring Of Might
-; 10 - Ring Of Thunder
-; 11 - Heart Piece
-; 12 - Crystal 1
-; 13 - Crystal 2
-; 14 - Crystal 3
-; 15 - Crystal 4
-; 16 - Crystal 5
-; 17 - Heart Container
-; 18 - 1000 Gold
-; 19 - 5000 Gold
-; 20 - Full Life Refill
-; 21 - Well
-; 22 - Nothing to sell
 
 .end

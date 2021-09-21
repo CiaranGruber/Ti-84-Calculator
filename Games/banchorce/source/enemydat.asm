@@ -9,10 +9,22 @@
 ; Initial health for each enemy
 ;------------------------------------------------
 enemyHealth:
-.db     1,8,10,20,1,1,10,20,18,18
-.db     20,24,18,36,27,45,60,56,70,50
-.db     56,60,75,56,62,85,50,100,130,110
-.db     100,140,160,180,200
+.db     1,8,10,20,1
+.db     1,10,20,18,18
+.db     20,24,18,36,18
+.db     45,60,56,70,50
+.db     36,60,75,56,62
+.db     85,50,100,130,110
+.db     100,200,240,180,200
+
+enemyHealthEasy:
+.db     1,4,5,10,1
+.db     1,5,10,9,9
+.db     10,12,9,18,9
+.db     23,30,28,35,25
+.db     18,30,37,28,31
+.db     42,25,50,65,55
+.db     50,100,120,90,100
 
 ;------------------------------------------------
 ; How much gold player gets when an enemy is killed (divided by 10)
@@ -21,7 +33,7 @@ enemyGold:
 .db     1,5,2,4,2,2,10,4,3,4
 .db     8,9,6,8,9,7,12,18,28,20
 .db     16,18,22,25,22,32,28,30,32,32
-.db     30,35,45,50,48
+.db     30,35,50,50,48
 
 ;------------------------------------------------
 ; Speed of each enemy
@@ -42,72 +54,57 @@ enemyFlying:
 .db     1,1,1,0,0
 
 ;------------------------------------------------
-; How much each enemy hurts player on contact
+; enemy base damage values (then reduced by armor)
+; damage values are based on quarter-heart values (QH1 = one quarter heart, QH2 = two quarter hearts, etc.)
 ;------------------------------------------------
 enemyDamage:
-.db     ONE_HEART/4,ONE_HEART/4,ONE_HEART/4,ONE_HEART/4,ONE_HEART/4
-.db     ONE_HEART/2,ONE_HEART/4,ONE_HEART/4,ONE_HEART/4,ONE_HEART/4
-.db     ONE_HEART/2,ONE_HEART/4,ONE_HEART/2,(ONE_HEART*3)/4,ONE_HEART/2
-.db     ONE_HEART/2,ONE_HEART,ONE_HEART,(ONE_HEART*3)/2,(ONE_HEART*3)/2
-.db     (ONE_HEART*3)/2,(ONE_HEART*3)/2,(ONE_HEART*3)/2,ONE_HEART*2,(ONE_HEART*3)/2
-.db     ONE_HEART*2,ONE_HEART*2,ONE_HEART*2,ONE_HEART,ONE_HEART*2
-.db     ONE_HEART*2,ONE_HEART*2,ONE_HEART*2,(ONE_HEART*3)/2,ONE_HEART*2
-
-;------------------------------------------------
-; AI Tags
-;------------------------------------------------
-AI_NONE                                 = 0
-AI_FOLLOWPLAYER                         = 1
-AI_FOLLOWPLAYERHITWALLS                 = 2
-AI_CIRCULAR                             = 3
-AI_SHOOT                                = 4
-AI_JUMP                                 = 5
-AI_RANDOMMOVEMENT                       = 6
-AI_RANDOMMOVEMENTHITWALLS               = 7
-AI_FROGMOVE                             = 8
-AI_SHOOT4DIR                            = 9
-AI_HORIZMOVE                            = 10
-AI_WAIT                                 = 11
+.db     QH1,QH1,QH1,QH1,QH1
+.db     QH1,QH1,QH1,QH1,QH1
+.db     QH2,QH1,QH2,QH2,QH1
+.db     QH2,QH3,QH3,QH3,QH4
+.db     QH2,QH6,QH3,QH4,QH5
+.db     QH6,QH6,QH7,QH3,QH7
+.db     QH6,QH8,QH6,QH4,QH8
 
 ;------------------------------------------------
 ; AI Scripts used by each enemy
 ;------------------------------------------------
 enemyAI:
-.db     AI_RANDOMMOVEMENTHITWALLS,AI_NONE       ; Castle Stone Knight
-.db     AI_JUMP,AI_SHOOT                        ; Light Octopus
-.db     AI_FOLLOWPLAYERHITWALLS,AI_NONE         ; Dark Potato Bug
-.db     AI_FOLLOWPLAYERHITWALLS,AI_WAIT         ; Light Jellyfish
-.db     AI_CIRCULAR,AI_NONE                     ; Light Bat
-.db     AI_FOLLOWPLAYERHITWALLS,AI_JUMP         ; Light Snake
-.db     AI_CIRCULAR,AI_SHOOT                    ; Bee
-.db     AI_FOLLOWPLAYERHITWALLS,AI_JUMP         ; Dark Snake
-.db     AI_FROGMOVE,AI_NONE                     ; Light Frog
-.db     AI_RANDOMMOVEMENT,AI_SHOOT              ; Light Spider
-.db     AI_FOLLOWPLAYERHITWALLS,AI_SHOOT4DIR    ; Mummy
-.db     AI_FOLLOWPLAYERHITWALLS,AI_NONE         ; Black Pigmy Skeleton
-.db     AI_RANDOMMOVEMENTHITWALLS,AI_SHOOT4DIR  ; Light Troll
-.db     AI_FOLLOWPLAYERHITWALLS,AI_JUMP         ; Black Snake
-.db     AI_CIRCULAR,AI_NONE                     ; Dark Bat
-.db     AI_RANDOMMOVEMENTHITWALLS,AI_SHOOT4DIR  ; Light Stone Knight
-.db     AI_FOLLOWPLAYERHITWALLS,AI_NONE         ; White Potato Bug
-.db     AI_FOLLOWPLAYERHITWALLS,AI_JUMP         ; White Snake
-.db     AI_FOLLOWPLAYERHITWALLS,AI_WAIT         ; Dark Jellyfish
-.db     AI_JUMP,AI_SHOOT                        ; Dark Octopus
-.db     AI_CIRCULAR,AI_NONE                     ; White Bat
-.db     AI_FROGMOVE,AI_NONE                     ; Dark Frog
-.db     AI_FOLLOWPLAYER,AI_NONE                 ; Mudman
-.db     AI_RANDOMMOVEMENT,AI_SHOOT              ; Dark Spider
-.db     AI_FOLLOWPLAYERHITWALLS,AI_WAIT         ; Tree Monster
-.db     AI_FOLLOWPLAYERHITWALLS,AI_WAIT         ; White Jellyfish
-.db     AI_RANDOMMOVEMENTHITWALLS,AI_SHOOT4DIR  ; Dark Troll
-.db     AI_RANDOMMOVEMENTHITWALLS,AI_SHOOT4DIR  ; Dark Stone Knight
-.db     AI_FOLLOWPLAYERHITWALLS,AI_NONE         ; White Pigmy Skeleton
-.db     AI_RANDOMMOVEMENTHITWALLS,AI_SHOOT4DIR  ; White Troll
-.db     AI_FOLLOWPLAYER,AI_NONE                 ; Shadow Beast
-.db     AI_HORIZMOVE,AI_NONE                    ; Death Lord
-.db     AI_FOLLOWPLAYER,AI_SHOOT                ; Koranda
-.db     AI_FOLLOWPLAYERHITWALLS,AI_JUMP         ; Midget Demon
-.db     AI_RANDOMMOVEMENTHITWALLS,AI_SHOOT      ; Hell Knight
+.dl     aiKnightNoShoot
+.dl     aiOctopus
+.dl     aiPotatoBug
+.dl     aiJellyfish
+.dl     aiBat
+.dl     aiSnake
+.dl     aiBee
+.dl     aiSnake
+.dl     aiFrog
+.dl     aiSpider
+.dl     aiMummy
+.dl     aiPigmySkeleton
+.dl     aiTroll
+.dl     aiSnake
+.dl     aiBat
+.dl     aiKnight
+.dl     aiPotatoBug
+.dl     aiSnake
+.dl     aiJellyfish
+.dl     aiOctopus
+.dl     aiBat
+.dl     aiFrog
+.dl     aiMudman
+.dl     aiSpider
+.dl     aiTreeMonster
+.dl     aiJellyfish
+.dl     aiTroll
+.dl     aiKnight
+.dl     aiPigmySkeleton
+.dl     aiTroll
+.dl     aiShadowBeast
+.dl     aiDeathLord
+.dl     aiKoranda
+.dl     aiPigmySkeletonJump
+.dl     aiKnightAim
 
 ;------------------------------------------------
 ; What enemy's bullets can be blocked with the Wooden Shield
@@ -117,88 +114,81 @@ woodenBlock:
 NUM_WOODEN                              = $-woodenBlock
 
 ;------------------------------------------------
-; Circle X & Y offsets
-;------------------------------------------------
-circleTable:
-.db     0,-1
-.db     0,-1
-.db     1,-1
-.db     0,-1
-.db     1,-1
-.db     1,-1
-.db     1,0
-.db     1,-1
-.db     1,0
-.db     1,0
-.db     1,0
-.db     1,0
-.db     1,1
-.db     1,0
-.db     1,1
-.db     1,1
-.db     0,1
-.db     1,1
-.db     0,1
-.db     0,1
-.db     0,1
-.db     0,1
-.db     -1,1
-.db     0,1
-.db     -1,1
-.db     -1,1
-.db     -1,0
-.db     -1,1
-.db     -1,0
-.db     -1,0
-.db     -1,0
-.db     -1,0
-.db     -1,-1
-.db     -1,0
-.db     -1,-1
-.db     -1,-1
-.db     0,-1
-.db     -1,-1
-.db     0,-1
-.db     0,-1
-CIRCLE_MAX              = ($-circleTable)/2
-
-;------------------------------------------------
-; X & Y offsets for 16 directions of movement
-;------------------------------------------------
-bulletOffsets:
-;------------------------------------------------
 ; Direction table
 ;------------------------------------------------
-;         9     12    8
-;    10         |         7
+;         5     4     3
+;     6         |         2
 ;               |
-;  11           |            6
-;               |
-;               |
-;  14 ----------+---------- 15
+;  7      Q2    |    Q1      1
 ;               |
 ;               |
-;  3            |            2
+;  8  ----------+----------  0
 ;               |
-;     4         |         1
-;         5    13    0
+;               |
+;  9      Q3    |    Q4     15
+;               |
+;    10         |        14
+;        11    12   13
 ;------------------------------------------------
-.db     2,1     ; 0
-.db     2,2     ; 1
-.db     1,2     ; 2
-.db     1,-2    ; 3
-.db     2,-2    ; 4
-.db     2,-1    ; 5
-.db     -1,2    ; 6
-.db     -2,2    ; 7
-.db     -2,1    ; 8
-.db     -2,-1   ; 9
-.db     -2,-2   ; 10
-.db     -1,-2   ; 11
-.db     -2,0    ; 12
-.db     2,0     ; 13
-.db     0,-2    ; 14
-.db     0,2     ; 15
+dir16Offsets:
+.db     0,2             ; 0
+.db     -1,2            ; 1
+.db     -2,2            ; 2
+.db     -2,1            ; 3
+.db     -2,0            ; 4
+.db     -2,-1           ; 5
+.db     -2,-2           ; 6
+.db     -1,-2           ; 7
+.db     0,-2            ; 8
+.db     1,-2            ; 9
+.db     2,-2            ; 10
+.db     2,-1            ; 11
+.db     2,0             ; 12
+.db     2,1             ; 13
+.db     2,2             ; 14
+.db     1,2             ; 15
+
+dir16Lookup:
+.db     4,4,4,4,4,4,4,4,4,4,4,4
+.db     0,2,3,3,3,3,4,4,4,4,4,4
+.db     0,1,2,3,3,3,3,3,3,3,3,4
+.db     0,1,1,2,2,3,3,3,3,3,3,3
+.db     0,1,1,2,2,2,3,3,3,3,3,3
+.db     0,1,1,1,2,2,2,2,3,3,3,3
+.db     0,0,1,1,1,2,2,2,2,3,3,3
+.db     0,0,1,1,1,2,2,2,2,2,2,3
+.db     0,0,1,1,1,1,2,2,2,2,2,2
+.db     0,0,1,1,1,1,1,2,2,2,2,2
+.db     0,0,1,1,1,1,1,2,2,2,2,2
+.db     0,0,0,1,1,1,1,1,2,2,2,2
+.db     0,0,0,1,1,1,1,1,1,2,2,2
+.db     0,0,0,1,1,1,1,1,1,2,2,2
+.db     0,0,0,1,1,1,1,1,1,1,2,2
+.db     0,0,0,1,1,1,1,1,1,1,1,2
+
+dir16Turn:
+.db     0,1,1,1,1,1,1,1,1,15,15,15,15,15,15,15
+.db     0,1,2,2,2,2,2,2,2,2,0,0,0,0,0,0
+.db     1,1,2,3,3,3,3,3,3,3,3,1,1,1,1,1
+.db     2,2,2,3,4,4,4,4,4,4,4,4,2,2,2,2
+.db     3,3,3,3,4,5,5,5,5,5,5,5,5,3,3,3
+.db     4,4,4,4,4,5,6,6,6,6,6,6,6,6,4,4
+.db     5,5,5,5,5,5,6,7,7,7,7,7,7,7,7,5
+.db     6,6,6,6,6,6,6,7,8,8,8,8,8,8,8,8
+.db     9,7,7,7,7,7,7,7,8,9,9,9,9,9,9,9
+.db     10,10,8,8,8,8,8,8,8,9,10,10,10,10,10,10
+.db     11,11,11,9,9,9,9,9,9,9,10,11,11,11,11,11
+.db     12,12,12,12,10,10,10,10,10,10,10,11,12,12,12,12
+.db     13,13,13,13,13,11,11,11,11,11,11,11,12,13,13,13
+.db     14,14,14,14,14,14,12,12,12,12,12,12,12,13,14,14
+.db     15,15,15,15,15,15,15,13,13,13,13,13,13,13,14,15
+.db     0,0,0,0,0,0,0,0,14,14,14,14,14,14,14,15
+
+;------------------------------------------------
+; used to convert one of the above 16 directions into a cardinal direction angle value
+;------------------------------------------------
+cardinalTable:
+.db     0,0,0,4,4,4,8,8,8,8,8,12,12,12,0,0
 
 ;------------------------------------------------
 ; Y Offsets for jumping
@@ -210,23 +200,31 @@ JUMP_MAX                                = $-jumpTable
 
 ;------------------------------------------------
 ; Frog movement data
+; first two jumps are the same, every 3rd jump is a bigger one
 ;------------------------------------------------
 frogYTable:
-.db     -2,-2,-1,-1,1,1,2,2,0,0,0,0
+.db     -2,-2,-1,-1,1,1,2,2,0,0,0,0,0,0,0,0
+.db     -2,-2,-1,-1,1,1,2,2,0,0,0,0,0,0,0,0
+.db     -2,-2,-2,-1,-1,-1,-1,0,0,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0
 frogXTable:
-.db     1,1,1,1,1,1,1,1,0,0,0,0
+.db     1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+.db     1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+.db     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0
 frogDirTable:
-.db     2,2,2,2,2,2,2,2,1,1,1,1
+.db     2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1
+.db     2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1
+.db     2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1
 FROG_CNT_MAX    = ($-frogYTable)/3
 
 ;------------------------------------------------
-; Horizontal sway movement data
+; Death Lord movement data
+; Swoops side to side, up/down (similar to Anazar)
 ;------------------------------------------------
-horizMoveTable1:
-.db     -1,-1,0,1,1,1,1,0,-1,-1
-HORIZ_MAX_1     = $-horizMoveTable1
-horizMoveTable2:
-.db     -2,-2,-1,0,1,2,2,2,2,1,0,-1,-2,-2
-HORIZ_MAX_2     = $-horizMoveTable2
+deathLordHoriz:
+.db     0,0,0,0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,2,2,2,2,2,2,1,1,1,1,1,1,1,1,0,0,0,0
+DEATHLORD_HORIZ_MAX     = $-deathLordHoriz
+
+deathLordVert:
+.db     0,0,0,0,0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,0,0,0,0,0
 
 .end

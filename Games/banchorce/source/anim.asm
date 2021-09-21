@@ -7,9 +7,8 @@
 
 ;------------------------------------------------
 ; clearAnimTable - Clear animTable
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 clearAnimTable:
         ld      hl,animTable
@@ -18,9 +17,8 @@ clearAnimTable:
 
 ;------------------------------------------------
 ; drawAnims - Draw animations
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 drawAnims:
         ld      ix,animTable
@@ -33,13 +31,13 @@ drawAnimsLoop:
         jr      z,endDrawAnimsLoop
         dec     a
         ld      e,a
-        ld      d,24
+        ld      d,64
         mlt     de
         ld      hl,sprExplosion
         add     hl,de
-        ld      b,(ix+A_X)
-        ld      c,(ix+A_Y)
-        call    graySpriteClip
+        ld      e,(ix+A_X)
+        ld      d,(ix+A_Y)
+        call    drawSprite
 endDrawAnimsLoop:
         pop     ix
         pop     bc
@@ -50,10 +48,9 @@ endDrawAnimsLoop:
 
 ;------------------------------------------------
 ; newAnim - Create a new explosion animation
-;
-; Input:    B = X Coord
+;   input:  B = X Coord
 ;           C = Y Coord
-; Output:   None
+;   output: none
 ;------------------------------------------------
 newAnim:
         push    bc
@@ -79,9 +76,8 @@ foundEmptyAnimEntry:
 
 ;------------------------------------------------
 ; updateAnims - Update explosion animations
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 updateAnims:
         ld      a,(frame)
@@ -97,7 +93,7 @@ updateAnimsLoop:
         inc     (hl)
         ld      a,(hl)
         cp      ANIM_MAX+1
-        jr      nz,endUpdateAnimsLoop
+        jr      c,endUpdateAnimsLoop
         ld      (hl),0
 endUpdateAnimsLoop:
         add     hl,de

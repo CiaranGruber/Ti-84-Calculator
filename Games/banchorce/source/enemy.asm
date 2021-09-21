@@ -7,9 +7,8 @@
 
 ;------------------------------------------------
 ; clearEnemyTable - Clear enemyTable
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 clearEnemyTable:
         ld      hl,enemyTable
@@ -18,9 +17,8 @@ clearEnemyTable:
 
 ;------------------------------------------------
 ; clearBulletTable - Clear bulletTable
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 clearBulletTable:
         ld      hl,bulletTable
@@ -28,10 +26,9 @@ clearBulletTable:
         jp      _ld_hl_bz
 
 ;------------------------------------------------
-; makeEnemy - Make an enemy
-;
-; Input:    None
-; Output:   None
+; makeEnemy - try to spawn an enemy
+;   input:  none
+;   output: none
 ;------------------------------------------------
 makeEnemy:
         ld      a,(enemyType)
@@ -48,7 +45,7 @@ findEmptyEnemyEntry:
         djnz    findEmptyEnemyEntry
         ret
 foundEmptyEnemyEntry:
-        ld      b,14
+        ld      b,COLS-2
         call    random
         inc     a
         ld      h,a
@@ -56,7 +53,7 @@ foundEmptyEnemyEntry:
         add     a,a
         add     a,a
         ld      (ix+E_X),a
-        ld      b,6
+        ld      b,ROWS-2
         call    random
         inc     a
         ld      l,a
@@ -84,6 +81,7 @@ afterCheckEnemyPosValid:
         or a \ sbc hl,hl \ ld l,a
         dec     l
         push    hl
+__enemyHealth           = $+1
         ld      de,enemyHealth
         add     hl,de
         ld      a,(hl)
@@ -92,19 +90,18 @@ afterCheckEnemyPosValid:
         ld      de,enemySpeed
         add     hl,de
         ld      a,(hl)
-        ld      (ix+E_SPEED),a
-        ld      (ix+E_AI1CNT),0
-        ld      (ix+E_AI1OFF),0
-        ld      (ix+E_AI2CNT),0
-        ld      (ix+E_AI2OFF),0
+        ld      (ix+E_FRAME),0
+        ld      (ix+E_PAUSECNT),0
+        ld      (ix+E_JUMPCNT),0
+        ld      (ix+E_SPEED),0
+        ld      (ix+E_FLAGS),0
         ld      (ix+E_HURT),0
         ret
 
 ;------------------------------------------------
 ; drawEnemies - Draw enemies
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 drawEnemies:
         ld      b,MAX_ENEMIES
@@ -122,8 +119,7 @@ drawEnemiesLoop:
         dec     l
         mlt     hl
         ex      de,hl
-        ld      l,a
-        dec     l
+        ld      l,(ix+E_FRAME)
         ld      h,3
         mlt     hl
         add     hl,de
@@ -132,9 +128,9 @@ drawEnemiesLoop:
         ld      de,(hl)
         ex      de,hl                           ; HL => Sprite to display
 drawEnemy:
-        ld      b,(ix+E_X)
-        ld      c,(ix+E_Y)
-        call    graySpriteClip
+        ld      e,(ix+E_X)
+        ld      d,(ix+E_Y)
+        call    drawSprite
 endDrawEnemiesLoop:
         pop     ix
         pop     bc
@@ -145,16 +141,15 @@ endDrawEnemiesLoop:
 drawEnemyBeingMade:
         neg
         bit     2,a
-        ld      hl,sprMakeEnemy1
+        ld      hl,sprSpawn
         jr      z,drawEnemy
-        ld      hl,sprMakeEnemy2
+        ld      hl,sprSpawn+64
         jr      drawEnemy
 
 ;------------------------------------------------
 ; moveEnemies - Run AI scripts for enemies
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 moveEnemies:
         ld      b,MAX_ENEMIES
@@ -169,38 +164,8 @@ moveEnemiesLoop:
         ld      a,(ix+E_HURT)
         or      a
         jr      nz,endMoveEnemiesLoop
-        ld      a,(ix+E_AI1CNT)
-        ld      (aiCnt),a
-        ld      a,(ix+E_AI2CNT)
-        ld      (aiCntOther),a
-        ld      a,(ix+E_AI2OFF)
-        ld      (aiOff),a
-        ld      bc,endAIScript1
-        ld      a,(ai1)
-        ld      l,a
-        ld      a,(ix+E_AI1OFF)
-        jr      runAIScript
-endAIScript1:
-        ld      a,(aiCnt)
-        ld      (ix+E_AI1CNT),a
-        ld      a,(aiOff)
-        ld      (ix+E_AI2OFF),a
-        ld      a,(ix+E_AI2CNT)
-        ld      (aiCnt),a
-        ld      a,(ix+E_AI1CNT)
-        ld      (aiCntOther),a
-        ld      a,(ix+E_AI1OFF)
-        ld      (aiOff),a
-        ld      bc,endAIScript2
-        ld      a,(ai2)
-        ld      l,a
-        ld      a,(ix+E_AI2OFF)
-        jr      runAIScript
-endAIScript2:
-        ld      a,(aiCnt)
-        ld      (ix+E_AI2CNT),a
-        ld      a,(aiOff)
-        ld      (ix+E_AI1OFF),a
+__enemyAI               = $+1
+        call    $000000
 endMoveEnemiesLoop:
         pop     bc
         ld      de,ENEMY_ENTRY_SIZE
@@ -215,206 +180,9 @@ updateMakingEnemy:
         jp      endMoveEnemiesLoop
 
 ;------------------------------------------------
-; runAIScript - Run an enemy AI script for an enemy
-;
-; Input:    IX => Start of enemy entry
-;           BC => Where to RET to
-;           L = AI script to run
-;           A = aiOff value for this script
-; Output:   IX => Start of enemy entry
-;------------------------------------------------
-runAIScript:
-        push    bc
-        or      a
-        ret     nz
-        ld      a,l
-        or      a
-        ret     z
-        dec     l
-        ld      h,3
-        mlt     hl
-        ld      de,aiTable
-        add     hl,de
-        ld      de,(hl)
-        ex      de,hl
-        jp      (hl)
-
-;------------------------------------------------
-; checkEnemySpeed - Check to see if enemy should move this frame
-;
-; Input:    None
-; Output:   Z = 1 if enemy should move
-;------------------------------------------------
-checkEnemySpeed:
-        ld      a,(frame)
-        and     (ix+E_SPEED)
-        ret
-
-;------------------------------------------------
-; tryMoveEnemyVertical - Try to move enemy closer to player on vertical axis
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
-;           CA = 1 if couldn't move
-;------------------------------------------------
-tryMoveEnemyVertical:
-        ld      a,(y)
-        cp      (ix+E_Y)
-        jp      c,moveEnemyUp
-        jp      nz,moveEnemyDown
-        scf
-        ret
-
-;------------------------------------------------
-; tryMoveEnemyHorizontal - Try to move enemy closer to player on horizontal axis
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
-;           CA = 1 if couldn't move
-;------------------------------------------------
-tryMoveEnemyHorizontal:
-        ld      a,(x)
-        cp      (ix+E_X)
-        jp      c,moveEnemyLeft
-        jp      nz,moveEnemyRight
-        scf
-        ret
-
-;------------------------------------------------
-; moveEnemyUp - Move an enemy up
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
-;           CA = 1 if couldn't move
-;------------------------------------------------
-moveEnemyUp:
-        ld      a,(ix+E_X)
-        ld      l,(ix+E_Y)
-        dec     l
-        call    enemyGetTile
-        cp      ENEMY_WALL
-        ccf
-        ret     c
-        ld      a,(ix+E_X)
-        add     a,7
-        ld      l,(ix+E_Y)
-        dec     l
-        call    enemyGetTile
-        cp      ENEMY_WALL
-        ccf
-        ret     c
-        dec     (ix+E_Y)
-        ld      (ix+E_DIR),1
-        or      a
-        ret
-
-;------------------------------------------------
-; moveEnemyDown - Move an enemy down
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
-;           CA = 1 if couldn't move
-;------------------------------------------------
-moveEnemyDown:
-        ld      a,(ix+E_Y)
-        add     a,8
-        ld      l,a
-        ld      a,(ix+E_X)
-        call    enemyGetTile
-        cp      ENEMY_WALL
-        ccf
-        ret     c
-        ld      a,(ix+E_Y)
-        add     a,8
-        ld      l,a
-        ld      a,(ix+E_X)
-        add     a,7
-        call    enemyGetTile
-        cp      ENEMY_WALL
-        ccf
-        ret     c
-        inc     (ix+E_Y)
-        ld      (ix+E_DIR),2
-        or      a
-        ret
-
-;------------------------------------------------
-; moveEnemyLeft - Move an enemy left
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
-;           CA = 1 if couldn't move
-;------------------------------------------------
-moveEnemyLeft:
-        ld      a,(ix+E_X)
-        dec     a
-        ld      l,(ix+E_Y)
-        call    enemyGetTile
-        cp      ENEMY_WALL
-        ccf
-        ret     c
-        ld      a,(ix+E_Y)
-        add     a,7
-        ld      l,a
-        ld      a,(ix+E_X)
-        dec     a
-        call    enemyGetTile
-        cp      ENEMY_WALL
-        ccf
-        ret     c
-        dec     (ix+E_X)
-        ld      (ix+E_DIR),3
-        or      a
-        ret
-
-;------------------------------------------------
-; moveEnemyRight - Move an enemy right
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
-;           CA = 1 if couldn't move
-;------------------------------------------------
-moveEnemyRight:
-        ld      a,(ix+E_X)
-        add     a,8
-        ld      l,(ix+E_Y)
-        call    enemyGetTile
-        cp      ENEMY_WALL
-        ccf
-        ret     c
-        ld      a,(ix+E_Y)
-        add     a,7
-        ld      l,a
-        ld      a,(ix+E_X)
-        add     a,8
-        call    enemyGetTile
-        cp      ENEMY_WALL
-        ccf
-        ret     c
-        inc     (ix+E_X)
-        ld      (ix+E_DIR),4
-        or      a
-        ret
-
-;------------------------------------------------
-; enemyGetTile - Same as getTile, but you can hack into it ;)
-;
-; Input:    A = X Coord
-;           L = Y Coord
-; Output:   HL => Tile
-;           A = Tile
-;------------------------------------------------
-enemyGetTile:
-        call    getTile
-__enemyGetTile                          = $
-        xor     a
-        ret
-
-;------------------------------------------------
 ; getEmptyBulletEntry - Try to find an empty entry in bulletTable
-;
-; Input:    None
-; Output:   HL => Start of entry (if one was found)
+;   input:  none
+;   output: HL => Start of entry (if one was found)
 ;           CA = 1 if no entry was empty
 ;------------------------------------------------
 getEmptyBulletEntry:
@@ -432,9 +200,8 @@ findEmptyBulletEntry:
 
 ;------------------------------------------------
 ; drawBullets - Draw enemy bullets
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 drawBullets:
         ld      hl,bulletTable
@@ -446,11 +213,11 @@ drawBulletsLoop:
         or      a
         jr      z,endDrawBulletsLoop
         inc     hl
-        ld      b,(hl)
+        ld      e,(hl)
         inc     hl
-        ld      c,(hl)
+        ld      d,(hl)
         ld      hl,sprBullet
-        call    graySpriteClip
+        call    drawSprite
 endDrawBulletsLoop:
         pop     bc
         pop     hl
@@ -461,9 +228,8 @@ endDrawBulletsLoop:
 
 ;------------------------------------------------
 ; moveBullets - Move enemy bullets
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 moveBullets:
         ld      ix,bulletTable
@@ -473,19 +239,10 @@ moveBulletsLoop:
         ld      a,(ix+B_DIR)
         or      a
         jr      z,endMoveBulletsLoop
+        and     %01111111                       ; mask out bit 7 (used as shield deflection flag)
         dec     a
-        ld      l,a
-        ld      h,2
-        mlt     hl
-        ld      de,bulletOffsets
-        add     hl,de
-        ld      a,(hl)
-        add     a,(ix+E_Y)
-        ld      (ix+E_Y),a
-        inc     hl
-        ld      a,(hl)
-        add     a,(ix+E_X)
-        ld      (ix+E_X),a
+        ld      b,1
+        call    moveDir16
         push    ix
         pop     hl
         inc     hl
@@ -502,82 +259,134 @@ endMoveBulletsLoop:
         ret
 
 ;------------------------------------------------
-; getAngle - Get the angle between the player and an enemy
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
+; moveDir16 - move an enemy, bullet, etc. based off dir16Offsets
+;   input:  A = angle
+;           B = delay (0=fast, 1=normal (default for bullets, etc.), 2=slow)
+;           IX => object entry
+;   output: IX => object entry
+;------------------------------------------------
+moveDir16:
+        ld      e,a
+        ld      d,2
+        mlt     de
+        ; do speed modification
+        ld      a,b
+        or      a
+        jr      nz,md16NotFast
+md16Fast:
+        ld      hl,md16CalcFast
+        jr      md16Move
+md16NotFast:
+        dec     a
+        jr      nz,md16Slow
+md16Normal:
+        ld      hl,md16CalcNormal
+        jr      md16Move
+md16Slow:
+        ld      hl,md16CalcSlow
+md16Move:
+        ld      (__md16CalcY),hl
+        ld      (__md16CalcX),hl
+        ld      hl,dir16Offsets
+        add     hl,de
+        ex      de,hl
+        ld      hl,frame
+        ld      a,(de)
+__md16CalcY             = $+1
+        call    $000000
+        add     a,(ix+E_Y)
+        ld      (ix+E_Y),a
+        inc     de
+        ld      a,(de)
+__md16CalcX             = $+1
+        call    $000000
+        add     a,(ix+E_X)
+        ld      (ix+E_X),a
+        ret
+md16CalcSlow:
+        bit     0,(hl)
+        pop     bc
+        ret     z
+        push    bc
+        sra     a
+        bit     1,(hl)
+        ret     z
+        adc     a,0
+        ret
+md16CalcNormal:
+        sra     a
+        bit     0,(hl)
+        ret     z
+        adc     a,0
+        ret
+md16CalcFast:
+        ret
+
+;------------------------------------------------
+; getAngle - get the angle between the player and an enemy
+;   input:  IX => Start of enemy entry
+;   output: IX => Start of enemy entry
 ;           A = Angle
 ;------------------------------------------------
 getAngle:
-        ld      bc,0
-        ld      a,(y)
-        sub     (ix+E_Y)
-        jr      z,angleHorizontal
-        jr      nc,pyeyPos
-        neg
-        ld      c,6
-pyeyPos:
-        ld      l,a
-        ld      h,b
-        ld      a,b
-        add     a,c
-        ld      b,a
+        ; first find the dir16Lookup entry we want
         ld      a,(x)
         sub     (ix+E_X)
-        jr      z,angleVertical
-        ld      c,0
-        jr      nc,pxexPos
-        neg
-        ld      c,3
-pxexPos:
-        ld      d,a
-        ld      a,b
-        add     a,c
-        ld      b,a
-        ld      a,d
-        call    _divhlbya_s
-        ld      a,l
-        cp      3
-        jr      c,angleNoSet2
-        ld      a,2
-angleNoSet2:
-        ld      c,a
-        ld      a,b
-        or      a
-        jr      z,angleModGradient
-        cp      9
-        jr      nz,angleAfterModGradient
-angleModGradient:
-        bit     0,c
-        jr      nz,angleAfterModGradient
-        ld      b,a
-        ld      a,c
-        xor     2
-        ld      c,a
-        ld      a,b
-angleAfterModGradient:
-        add     a,c
-        ret
-angleHorizontal:
-        ld      a,(x)
-        sub     (ix+E_X)
-        ld      a,14
-        ret     c
-        inc     a
-        ret
-angleVertical:
+        ld      b,a                             ; save for quadrant check
+        ABSA()
+        ADIV8()
+        ld      e,a
+        ld      d,12
+        mlt     de
         ld      a,(y)
         sub     (ix+E_Y)
-        ld      a,12
-        ret     c
-        inc     a
+        ld      c,a                             ; save for quadrant check
+        ABSA()
+        ADIV8()
+        LDHLA()
+        add     hl,de
+        ld      de,dir16Lookup
+        add     hl,de                           ; HL => dir16Lookup entry
+        ld      a,(hl)                          ; A = value within quadrant
+        ; now work out quadrant and calculate final angle value
+        bit     7,c
+        jr      z,gaYPos
+gaYNeg:
+        bit     7,b
+        jr      z,gaDone                        ; Q1 needs no modification
+gaQ2:
+        sub     8
+        neg
+        jr      gaDone
+gaYPos:
+        add     a,8
+        bit     7,b
+        jr      nz,gaDone
+gaQ4:
+        sub     8
+        neg
+gaDone:
+        and     $0F
+        ret
+
+;------------------------------------------------
+; getAngleCardinal - get the angle between the player and an enemy and convert to a cardinal direction
+;   input:  IX => Start of enemy entry
+;   output: IX => Start of enemy entry
+;           A = direction
+;------------------------------------------------
+getAngleCardinal:
+        call    getAngle
+        LDHLA()
+        ld      de,cardinalTable
+        add     hl,de
+        ld      a,(hl)
         ret
 
 ;------------------------------------------------
 ; checkEnemyOnScreen - Check to ensure an enemy is still on the screen
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
+;   input:  IX => Start of enemy entry
+;   output: IX => Start of enemy entry
 ;           CA = 1 if enemy isn't on the screen
 ;------------------------------------------------
 checkEnemyOnScreen:
@@ -590,9 +399,8 @@ checkEnemyOnScreen:
 
 ;------------------------------------------------
 ; loadEnemyToCollide2 - Load an enemy's info into (collide2)
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
+;   input:  IX => Start of enemy entry
+;   output: IX => Start of enemy entry
 ;------------------------------------------------
 loadEnemyToCollide2:
         ld      hl,collide2
@@ -609,9 +417,8 @@ loadEnemyToCollide2:
 
 ;------------------------------------------------
 ; loadBulletToCollide2 - Load a bullet's info into (collide2)
-;
-; Input:    IX => Start of bullet entry
-; Output:   IX => Start of bullet entry
+;   input:  IX => Start of bullet entry
+;   output: IX => Start of bullet entry
 ;------------------------------------------------
 loadBulletToCollide2:
         ld      hl,collide2

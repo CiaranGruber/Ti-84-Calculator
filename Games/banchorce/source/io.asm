@@ -6,10 +6,30 @@
 ;---------------------------------------------------------------;
 
 ;------------------------------------------------
+; keyScan - perform a keyscan
+;   input:  none
+;   output: none
+;------------------------------------------------
+keyScan:
+        di
+        ld      hl,DI_Mode
+        ld      (hl),$02
+        xor     a
+ksWait:
+        cp      (hl)
+        jr      nz,ksWait
+        ret
+
+_ld_hl_bz:
+        ld      (hl),0
+        inc     hl
+        djnz    _ld_hl_bz
+        ret
+
+;------------------------------------------------
 ; waitKey - Wait for a key press
-;
-; Input:    None
-; Output:   A = Key code (_getcsc style)
+;   input:  none
+;   output: A = Key code (_getcsc style)
 ;------------------------------------------------
 waitKey:
         ei
@@ -22,14 +42,151 @@ waitKeyLoop:
 
 ;------------------------------------------------
 ; waitKeyA - Wait for a key press excluding arrow keys
-;
-; Input:    None
-; Output:   A = Key code (_getcsc style)
+;   input:  none
+;   output: A = Key code (_getcsc style)
 ;------------------------------------------------
 waitKeyA:
         call    waitKey
         cp      5
         jr      c,waitKeyA
+        ret
+
+;------------------------------------------------
+; waitEnter - wait until Enter is pressed
+;   input:  none
+;   output: none
+;------------------------------------------------
+waitEnter:
+        call    waitKey
+        cp      GK_ENTER
+        jr      nz,waitEnter
+        ret
+
+;------------------------------------------------
+; drawStringColour - draw a string in a specified colour to vBuf
+;   input:  HL => string
+;           DE = x pos
+;           C = y pos
+;           A = colour
+;   output: HL => data after string
+;------------------------------------------------
+drawStringColour:
+        ld      (__dcColour),a
+        ; fall through to drawString
+
+;------------------------------------------------
+; drawString - draw a string to vBuf
+;   input:  HL => string
+;           DE = x pos
+;           C = y pos
+;   output: HL => data after string
+;           DE = x pos (preserved)
+;           C = y pos (preserved)
+;------------------------------------------------
+drawString:
+        push    de
+dsContinue:
+        ld      a,(hl)
+        inc     hl
+        or      a                                           ; null terminator?
+        jr      z,dsDone
+        cp      1                                           ; $01 = colour change
+        jr      z,dsColour
+        push    hl
+        push    de
+        push    bc
+        call    drawChar
+        pop     bc
+        pop     de
+        ld      hl,8
+        add     hl,de
+        ex      de,hl
+        pop     hl
+        jr      dsContinue
+dsDone:
+        pop     de
+        ld      a,COLOUR_WHITE
+        ld      (__dcColour),a
+        ret
+dsColour:
+        ld      a,(hl)
+        ld      (__dcColour),a
+        inc     hl
+        jr      dsContinue
+        
+;------------------------------------------------
+; drawChar - draw a font character to vBuf
+;   input:  A = ascii character
+;           DE = x pos
+;           C = y pos
+;   output: none
+;------------------------------------------------
+drawChar:
+        push    de
+        push    bc
+        sub     $20
+        ld bc,0 \ ld c,a
+        ld      hl,fontTable
+        add     hl,bc
+        ld      c,(hl)
+        ld      b,49
+        mlt     bc
+        ld      ix,font
+        add     ix,bc
+        pop     hl
+        ld      h,160
+        mlt     hl
+        add     hl,hl
+        ld      de,(pVbuf)
+        add     hl,de
+        pop     de
+        add     hl,de                           ; HL => vbuf location
+        ld      c,7
+dcRow:
+        push    hl
+        ld      b,7
+dcCol:
+        ld      a,(ix)
+        or      a
+        jr      z,dcSkip
+__dcColour              = $+1
+        ld      a,COLOUR_WHITE
+dcWrite:
+        ld      (hl),a
+dcSkip:
+        inc ix \ inc hl
+        djnz    dcCol
+        pop     hl
+        ld      de,320
+        add     hl,de
+        dec     c
+        jr      nz,dcRow
+        ret
+
+;------------------------------------------------
+; calcStringWidth - calculate the string width in pixels
+;   input:  HL => string
+;   output: HL => string
+;           BC = string width
+;------------------------------------------------
+calcStringWidth:
+        push    hl
+        ld      bc,0
+cswLoop:
+        ; count the number of characters in the string
+        ld      a,(hl)
+        or      a
+        jr      z,cswDone
+        inc     c
+        inc     hl
+        jr      cswLoop
+cswDone:
+        push    bc
+        pop     hl
+        HLTIMES8()
+        push    hl
+        pop     bc
+        pop     hl
         ret
 
 ;------------------------------------------------
@@ -69,9 +226,9 @@ fadeLcd:
         push    iy
         ld      c,32
 flOuter:
-        ld      b,4
+        ld      b,GAME_PALETTE_SIZE/2
         ld      iy,mpLcdPalette
-        ld      ix,palGray
+        ld      ix,gamePalette
 flInner:
         push    bc
 __flSubCalc             = $+1
@@ -126,44 +283,45 @@ flSkipB:
         pop     bc
         djnz    flInner
         push    bc
-        ld      bc,4000
+        ld      bc,FADE_DELAY
         call    waitBC
         pop     bc
-        ;ei
-        ;halt \ halt \ halt \ halt
         dec     c
         jr      nz,flOuter
         pop     iy
         ret
 
 ;------------------------------------------------
-; setShowHL - Set coords and show HL in _vputs font
-;
-; Input:    HL = Number to show
-;           DE = Coords to load to (_pencol)
+; drawHL - Set coords and show HL
+;   input:  HL = Number to show
+;           DE = x pos
+;           C = y pos
 ;           B = Number of characters to show
-; Output:   None
+;   output: none
 ;------------------------------------------------
-showHL:
+drawHL:
         push    de
+        push    bc
         ld      de,string+5
         xor     a
         ld      (de),a
 convertHLToAscii:
         dec     de
-        call    _divhlby10_s
+        ;call    _divhlby10_s
+        ld      a,10
+        call    _divHLbyA
         add     a,'0'
         ld      (de),a
         djnz    convertHLToAscii
         ex      de,hl
+        pop     bc
         pop     de
-        jp      putString
+        jp      drawString
 
 ;------------------------------------------------
 ; waitBC - Wait a bit
-;
-; Input:    BC = How many times to loop
-; Output:   None
+;   input:  BC = How many times to loop
+;   output: none
 ;------------------------------------------------
 waitBC:
         push bc \ pop bc
@@ -172,23 +330,6 @@ waitBC:
         or      b
         or      c
         jr      nz,waitBC
-        ret
-
-;------------------------------------------------
-; fillSide - Fill a side of the screen
-;
-; Input:    HL => Start of video memory to fill
-; Output:   None
-;------------------------------------------------
-fillSide:
-        ld      b,128
-        ld      de,15
-fillSideLoop:
-        ld      (hl),$FF
-        inc     hl
-        ld      (hl),$FF
-        add     hl,de
-        djnz    fillSideLoop
         ret
 
 .end

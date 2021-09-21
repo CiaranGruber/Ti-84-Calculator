@@ -7,221 +7,330 @@
 
 ;------------------------------------------------
 ; All enemy AI scripts follow
-;
-; Input:    IX => Start of enemy entry
-; Output:   IX => Start of enemy entry
+;   input:  IX => Start of enemy entry
+;   output: IX => Start of enemy entry
 ;------------------------------------------------
 
 ;------------------------------------------------
-; aiFollowPlayer - Follow the player (can walk over walls)
+; aiKnightNoShoot - early version of the Knight that just wanders (no shooting)
+;   uses:   enemyWander
 ;------------------------------------------------
-aiFollowPlayer:
-        call    checkEnemySpeed
-        ret     nz
-        ld      a,(aiCnt)
-        cp      8
-        jr      nc,aifpTryVFirst
-aifpTryHFirst:
-        call    tryMoveEnemyHorizontal
-        jr      nc,aifpDone
-        call    tryMoveEnemyVertical
-        jr      aifpDone
-aifpTryVFirst:
-        call    tryMoveEnemyVertical
-        jr      nc,aifpDone
-        call    tryMoveEnemyHorizontal
-aifpDone:
-        ld      a,(aiCnt)
-        inc     a
-        and     $0F
-        ld      (aiCnt),a
+aiKnightNoShoot:
+        call    despawnOffScreen
+        ret     c
+        ld      a,(frame)
+        bit     0,a
+        call    z,enemyWander
         ret
 
 ;------------------------------------------------
-; aiFollowPlayerHitWalls - Follow the player (can't walk over walls)
+; aiKnight - standard Knight that wanders and occasionally pauses to shoot in a cardinal direction
+; aiTroll has identical behaviour
+;   uses:   enemyWander
+;           enemyShoot
+;           E_PAUSECNT (counter for pausing to shoot)
 ;------------------------------------------------
-aiFollowPlayerHitWalls:
-        xor     a
-        ld      (__enemyGetTile),a
-        call    aiFollowPlayer
-        ld      a,$AF                           ; A = "xor a"
-        ld      (__enemyGetTile),a
-        ret
-
-;------------------------------------------------
-; aiCircular - Move in a circle
-;------------------------------------------------
-aiCircular:
-        call    checkEnemySpeed
-        ret     nz
-        ld      hl,(aiCnt)
-        ld      h,2
-        mlt     hl
-        ld      de,circleTable
-        add     hl,de
-        ld      a,(hl)
-        add     a,(ix+E_Y)
-        ld      (ix+E_Y),a
-        inc     hl
-        ld      a,(hl)
-        add     a,(ix+E_X)
-        ld      (ix+E_X),a
-        ld      a,(aiCnt)
-        inc     a
-        cp      CIRCLE_MAX
-        jr      nz,saveCircleCnt
-        xor     a
-saveCircleCnt:
-        ld      (aiCnt),a
-        ret
-
-;------------------------------------------------
-; aiShoot - Shoot at player
-;------------------------------------------------
-aiShoot:
-        ld      b,100
+aiKnight:
+aiTroll:
+        call    despawnOffScreen
+        ret     c
+        ld      hl,getAngleCardinal
+        ld      de,enemyWander
+        ld      a,50
+aiKnightCommon:
+        ld      (__enemyShootAngle),hl
+        ld      (__knightWander),de
+        ld      (__knightPauseCeiling),a
+        ld      a,(ix+E_PAUSECNT)
+        or      a
+        jr      nz,aiKnightPaused               ; enemy currently paused
+        call    checkEnemyTileAligned
+        jr      nz,aiKnightContinueWander       ; if not tile aligned, continue the wandering
+__knightPauseCeiling    = $+1
+        ld      b,$00
         call    random
-        cp      98
+        or      a
+        jr      nz,aiKnightContinueWander       ; 1-in-B chance of starting a pause, otherwise continue wandering
+aiKnightStartPause:
+        ld      (ix+E_PAUSECNT),50
+aiKnightPaused:
+        dec     (ix+E_PAUSECNT)
+        ret     nz
+        jp      enemyShoot
+aiKnightContinueWander:
+        ld      a,(frame)
+        bit     0,a
+__knightWander          = $+1
+        call    z,$000000
+        call    enemyDirToFrame
+        ret
+
+;------------------------------------------------
+; aiKnightAim - endgame Knight that wanders and occasionally pauses to shoot
+;   uses:   aiKnight
+;------------------------------------------------
+aiKnightAim:
+        call    despawnOffScreen
         ret     c
-        call    getEmptyBulletEntry
+        ld      hl,getAngle
+        ld      de,enemyWander
+        ld      a,50
+        jr      aiKnightCommon
+
+;------------------------------------------------
+; aiOctopus - jump on the spot and occasionally shoot at player
+;   uses:   enemyJump
+;           enemyShoot
+;------------------------------------------------
+aiOctopus:
+        call    enemyJump
+        ld      hl,getAngle
+        ld      (__enemyShootAngle),hl
+        ld      a,(ix+E_JUMPCNT)
+        or      a
+        ret     nz                              ; don't shoot if mid-jump
+        ld      b,200
+        call    random
+        or      a
+        ret     nz
+        jp      enemyShoot
+
+;------------------------------------------------
+; aiPotatoBug - chase the player every 2nd frame
+; aiMummy has identical behaviour
+;   uses:   enemyFollow
+;------------------------------------------------
+aiPotatoBug:
+aiMummy:
+        call    despawnOffScreen
         ret     c
-        push    hl
+        ld      a,(frame)
+        bit     0,a
+        call    z,enemyFollow
+        call    enemyDirToFrame
+        ret
+
+;------------------------------------------------
+; aiJellyfish - chase the player, but pause between each tile
+;   uses:   enemyFollow
+;           E_PAUSECNT (counter for pausing between tiles)
+;------------------------------------------------
+aiJellyfish:
+        call    despawnOffScreen
+        ret     c
+        ld      a,20
+        ld      c,OP_CALLZ
+aiJellyfishCommon:
+        ld      (__jellyfishPause),a
+        ld      a,c
+        ld      (__jellyfishSpeed),a
+        ld      a,(ix+E_PAUSECNT)
+        or      a
+        jr      nz,aiJellyfishPaused
+        call    checkEnemyTileAligned
+        jr      nz,aiJellyfishFollow
+__jellyfishPause        = $+1
+        ld      b,20
+        call    random
+        add     a,30
+        ld      (ix+E_PAUSECNT),a
+aiJellyfishPaused:
+        dec     (ix+E_PAUSECNT)
+        ld      a,(ix+E_PAUSECNT)
+        and     %11111110
+        ret     nz
+aiJellyfishFollow:
+        ld      a,(frame)
+        bit     0,a
+__jellyfishSpeed        = $
+        call    z,enemyFollow
+        call    enemyDirToFrame
+        ret
+
+;------------------------------------------------
+; aiBat - chase player using the 16 directions in arc patterns by slowing down when it needs to alter it's trajectory and speeding up when it's on course
+;       this is a unique behaviour used only by Bats
+;   uses:   E_SPEED (used to keep track of how fast the Bat is moving
+;------------------------------------------------
+aiBat:
+        call    despawnOffScreen
+        ret     c
+        ; first, check if E_SPEED has been initialised (only happens once per Bat)
+        ld      a,(ix+E_SPEED)
+        or      a
+        jr      nz,aiBatSpeedSet
+        ; it's a brand new Bat, initialise E_SPEED and E_DIR
+        ld      (ix+E_SPEED),32
         call    getAngle
-        pop     hl
-        inc     a
-        ld      (hl),a
-        inc     hl
-        ld      a,(ix+E_X)
-        ld      (hl),a
-        inc     hl
-        ld      a,(ix+E_Y)
-        ld      (hl),a
-        ret
-
-;------------------------------------------------
-; aiJump - Jump
-;------------------------------------------------
-aiJump:
-        ld      a,(aiOff)
-        or      a
-        jr      nz,continueJump
-        ld      b,30
-        call    random
-        cp      29
-        ret     c
-        xor     a
-        ld      (aiCnt),a
-        inc     a
-        ld      (aiOff),a
-continueJump:
-        ld      a,(aiCnt)
-        or a \ sbc hl,hl \ ld l,a
-        ld      de,jumpTable
-        add     hl,de
-        ld      a,(hl)
-        add     a,(ix+E_Y)
-        ld      (ix+E_Y),a
-        ld      hl,aiCnt
-        inc     (hl)
-        ld      a,(hl)
-        cp      JUMP_MAX
-        ret     c
-        xor     a
-        ld      (aiOff),a
-        ret
-
-;------------------------------------------------
-; aiRandomMovement - Move enemy in random directions (only 4 directions)
-;------------------------------------------------
-aiRandomMovement:
-        call    checkEnemySpeed
-        ret     nz
-        call    checkEnemyOnScreen
-        jr      nc,doRandomMovement
-        ld      (ix+E_DIR),0
-        ret
-doRandomMovement:
-        ld      a,(aiCnt)
-        or      a
-        jr      nz,randomMoveContinue
-        ld      b,4
-        call    random
         inc     a
         ld      (ix+E_DIR),a
-        ld      a,8
-        ld      (aiCnt),a
-        ret
-randomMoveContinue:
-        dec     a
-        ld      (aiCnt),a
+aiBatSpeedSet:
+        ; first, check if the Bat is heading towards the player already
+        call    getAngle
+        ld      b,(ix+E_DIR)
+        dec     b
+        call    aiBatCalcAngleDiff
+        cp      2
+        jr      c,aiBatSpeedUp                  ; if angle is off by 1 or less, speed up and keep current direction
+        cp      4
+        jr      c,aiBatAlterDir                 ; if angle is only off by 3 or less, maintain current speed and adjust angle by 1
+        ; otherwise, slow down before adjusting angle
+aiBatSlowDown:
+        ld      a,(frame)
+        and     %00000001
+        jr      nz,aiBatAlterDir                ; can only slow down every 2nd frame
+        ld      a,(ix+E_SPEED)
+        cp      32
+        jr      z,aiBatAlterDir                 ; already at min speed
+        inc     a
+        ld      (ix+E_SPEED),a
+aiBatAlterDir:
+        ld      a,(frame)
+        and     %00000011
+        jr      nz,aiBatMove                    ; can only alter direction every 4th frame
         ld      e,(ix+E_DIR)
         dec     e
-        ld      d,3
-        mlt     de
-__randomDirTable        = $+1
-        ld      hl,randomDirTable
+        ld      d,16
+        mlt     de                              ; dir16Turn row offset
+        ld      hl,0
+        ld      l,c
         add     hl,de
-        ld      de,(hl)
-        ex      de,hl
-        jp      (hl)
-randomDirUp:
-        dec     (ix+E_Y)
+        ld      de,dir16Turn
+        add     hl,de
+        ld      a,(hl)                          ; A = new direction
+        inc     a
+        ld      (ix+E_DIR),a
+        jr      aiBatMove
+aiBatSpeedUp:
+        ld      a,(ix+E_SPEED)
+        cp      8
+        jr      z,aiBatMove                     ; already at max speed
+        dec     a
+        ld      (ix+E_SPEED),a
+aiBatMove:
+        ld      a,(ix+E_DIR)
+        dec     a
+        ld      b,(ix+E_SPEED)
+        srl     b
+        srl     b
+        srl     b
+        dec     b
+        call    moveDir16
         ret
-randomDirDown:
-        inc     (ix+E_Y)
+aiBatCalcAngleDiff:
+        ld      c,a
+        sub     b
+        ABSA()
+        cp      8
+        ret     c
+        sub     16
+        ABSA()
         ret
-randomDirLeft:
-        dec     (ix+E_X)
-        ret
-randomDirRight:
-        inc     (ix+E_X)
-        ret
-randomDirTable:
-.dl     randomDirUp, randomDirDown, randomDirLeft, randomDirRight
 
 ;------------------------------------------------
-; aiRandomMovementHitWalls - Same as aiRandomMovement but enemy hits walls
+; aiSnake - chase the player and occasionally jump
+;   uses:   enemyFollow
+;           enemyJump
 ;------------------------------------------------
-aiRandomMovementHitWalls:
-        xor     a
-        ld      (__enemyGetTile),a
-        ld      hl,randomDirTableHitWalls
-        ld      (__randomDirTable),hl
-        call    aiRandomMovement
-        ld      hl,randomDirTable
-        ld      (__randomDirTable),hl
-        ld      a,$AF
-        ld      (__enemyGetTile),a
-        ret
-randomDirTableHitWalls:
-.dl     moveEnemyUp, moveEnemyDown, moveEnemyLeft, moveEnemyRight
-
-;------------------------------------------------
-; aiFrogMove - Do Frog movement
-;------------------------------------------------
-aiFrogMove:
-        call    checkEnemySpeed
-        ret     nz
-        call    checkEnemyOnScreen
-        jr      nc,okFrogMove
-        ld      (ix+E_DIR),0
-        ret
-okFrogMove:
-        ld      hl,aiCnt
-        ld      a,(hl)
+aiSnake:
+        call    despawnOffScreen
+        ret     c
+        call    enemyJump
+        ld      a,(ix+E_JUMPCNT)
         or      a
-        jr      nz,doFrogMove
-        inc     (hl)
+        ret     nz                              ; don't follow if mid-jump
+        ld      a,(frame)
+        bit     0,a
+        call    z,enemyFollow
+        call    enemyDirToFrame
+        ret
+
+;------------------------------------------------
+; aiBee - move around in a circle either clockwise or counter clockwise, and in one of 3 radii
+;       this is a unique behaviour used only by Bees
+;   uses:   E_SPEED (used to determine the circle radius by how often the Bee changes it's angle)
+;           E_FLAGS (bit 0 is the circle direction, either CW or CCW)
+;------------------------------------------------
+aiBee:
+        call    despawnOffScreen
+        ret     c
+        ; first, check if E_SPEED has been set (not zero), this only happens once per Bee
+        ld      a,(ix+E_SPEED)
+        or      a
+        ld      c,a
+        jr      nz,aiBeeSpeedSet                ; if so, skip this next bit
+        ; choose a random speed value (will either be %00000001, %00000011 or %00000111)
+        ; this value will cause the Bee to change it's direction every 2nd, 4th or 8th frame, to get the "random" circle radii
+        ld      b,3
+        call    random
+        inc     a
+        ld      b,a
+        xor     a
+        ld      c,1
+aiBeeCalcSpeed:
+        or      c
+        rlc     c
+        djnz    aiBeeCalcSpeed
+        ld      c,a
+        ld      (ix+E_SPEED),c
+        ; choose either CW or CCW direction
+        ld      b,2
+        call    random
+        ld      (ix+E_FLAGS),a
+aiBeeSpeedSet:
+        ld      c,-1
+        bit     0,(ix+E_FLAGS)
+        jr      z,aiBeeCheckFrame
+        ld      c,1
+aiBeeCheckFrame:
+        ld      a,(frame)
+        and     (ix+E_SPEED)
+        ld      a,(ix+E_DIR)
+        jr      nz,aiBeeMove
+        dec     a
+        add     a,c
+        and     $0F
+        inc     a
+        ld      (ix+E_DIR),a
+aiBeeMove:
+        dec     a
+        ld      b,1
+        call    moveDir16
+aiBeeShoot:
+        ld      b,200
+        call    random
+        or      a
+        ret     nz
+        ld      hl,getAngle
+        ld      (__enemyShootAngle),hl
+        jp      enemyShoot
+
+;------------------------------------------------
+; aiFrog - jump across the screen either left or right
+;       this is a unique behaviour used only by Frogs
+;   uses:   E_JUMPCNT (counter for the various tables used to calculate the jump)
+;------------------------------------------------
+aiFrog:
+        ld      a,(frame)
+        bit     0,a
+        ret     nz
+        call    despawnOffScreen
+        ret     c
+        ld      a,(ix+E_JUMPCNT)
+        or      a
+        jr      nz,aiFrogContinue
+        inc     (ix+E_JUMPCNT)
         ld      a,(x)
         sub     (ix+E_X)
-        jr      c,frogLeft
+        jr      c,aiFrogLeft
+aiFrogRight:
         ld      (ix+E_DIR),3
-        jr      doFrogMove
-frogLeft:
+        jr      aiFrogContinue
+aiFrogLeft:
         ld      (ix+E_DIR),1
-doFrogMove:
+aiFrogContinue:
         ld      bc,0
-        ld      c,(hl)
+        ld      c,(ix+E_JUMPCNT)
         dec     c
         push    bc
         ld      hl,frogYTable
@@ -233,175 +342,565 @@ doFrogMove:
         cp      3
         ld      a,$80
         ld      b,2
-        jr      nc,doCalcFrogValues
+        jr      nc,aiFrogCalcValues
         ld      a,$90
         ld      b,0
-doCalcFrogValues:
-        ld      (__frogAddSub),a
+aiFrogCalcValues:
+        ld      (__aiFrogAddSub),a
         ld      a,b
-        ld      (__frogDir),a
+        ld      (__aiFrogDir),a
         pop     bc
         push    bc
         ld      hl,frogXTable
         add     hl,bc
         ld      b,(hl)
         ld      a,(ix+E_X)
-__frogAddSub    = $
+__aiFrogAddSub          = $
         nop
         ld      (ix+E_X),a
-__frogDir       = $+1
+__aiFrogDir             = $+1
         ld      a,$00
         pop     bc
         ld      hl,frogDirTable
         add     hl,bc
         add     a,(hl)
         ld      (ix+E_DIR),a
-        ld      hl,aiCnt
-        inc     (hl)
-        ld      a,(hl)
+        call    enemyDirToFrame
+        inc     (ix+E_JUMPCNT)
+        ld      a,(ix+E_JUMPCNT)
         cp      FROG_CNT_MAX+1
         ret     c
-        ld      (hl),1
+        ld      (ix+E_JUMPCNT),1
         ret
 
 ;------------------------------------------------
-; aiShoot4Dir - Shoot in one of 4 directions
+; aiSpider - wanders with no clipping and occasionally pauses to shoot
+;   uses:   aiKnight
 ;------------------------------------------------
-aiShoot4Dir:
-        ld      b,100
-        call    random
-        cp      98
+aiSpider:
+        call    despawnOffScreen
         ret     c
+        ld      hl,getAngle
+        ld      de,enemyWanderNoClip
+        ld      a,100
+        jp      aiKnightCommon
+
+;------------------------------------------------
+; aiPigmySkeleton - chase the player fast
+;   uses:   enemyFollow
+;------------------------------------------------
+aiPigmySkeleton:
+        call    despawnOffScreen
+        ret     c
+        call    enemyFollow
+        call    enemyDirToFrame
+        ret
+
+;------------------------------------------------
+; aiPigmySkeletonJump - chase the player fast and occasionally jump
+;   uses:   enemyFollow
+;           enemyJump
+;------------------------------------------------
+aiPigmySkeletonJump:
+        call    despawnOffScreen
+        ret     c
+        call    enemyJump
+        ld      a,(ix+E_JUMPCNT)
+        or      a
+        call    z,enemyFollow                   ; don't follow if mid-jump
+        call    enemyDirToFrame
+        ret
+
+;------------------------------------------------
+; aiMudman - chase the player every 2nd frame with no wall clipping
+; aiShadowBeast has identical behaviour
+;   uses:   enemyFollow
+;------------------------------------------------
+aiMudman:
+aiShadowBeast:
+        ld      a,(frame)
+        bit     0,a
+        call    z,enemyFollowNoClip
+        call    enemyDirToFrame
+        ret
+
+;------------------------------------------------
+; aiTreeMonster - chase the player like Jellyfish but walks faster and has potential for longer pauses between each tile
+;   uses:   aiJellyfish
+;------------------------------------------------
+aiTreeMonster:
+        call    despawnOffScreen
+        ret     c
+        ld      a,80
+        ld      c,OP_CALL
+        jp      aiJellyfishCommon
+
+;------------------------------------------------
+; aiDeathLord - swoop up/down and left/right around the screen
+;   uses:   E_JUMPCNT (to keep track of the horizontal movement)
+;           E_SPEED (assigned a random number after spawn to use as an offset for frame counter to track vertical movement)
+;           E_FLAGS (to track up/down and left/right directions)
+;------------------------------------------------
+aiDeathLord:
+        call    despawnOffScreen
+        ret     c
+        ; first, check if E_SPEED has been set (not zero), this only happens once per Death Lord
+        ld      a,(ix+E_SPEED)
+        or      a
+        jr      nz,aiDeathLordSpeedSet
+        ; choose a random speed value between 1-16
+        ld      b,16
+        call    random
+        inc     a
+        ld      (ix+E_SPEED),a
+aiDeathLordSpeedSet:
+        ; horizontal movement, works off E_JUMPCNT
+        ld      a,(ix+E_JUMPCNT)
+        LDHLA()
+        ld      de,deathLordHoriz
+        add     hl,de
+        inc     a
+        cp      DEATHLORD_HORIZ_MAX
+        jr      nz,aiDeathLordSaveCount
+        ld      a,(ix+E_FLAGS)
+        xor     %00000001
+        ld      (ix+E_FLAGS),a
+        xor     a
+aiDeathLordSaveCount:
+        ld      (ix+E_JUMPCNT),a
+        bit     0,(ix+E_FLAGS)
+        ld      a,(hl)
+        jr      nz,aiDeathLordHoriz
+        neg
+aiDeathLordHoriz:
+        add     a,(ix+E_X)
+        ld      (ix+E_X),a
+        ; vertical movement, works off the frame counter with E_SPEED being a random offset for each Death Lord
+        ld      a,(frame)
+        add     a,(ix+E_SPEED)
+        and     %00011111
+        jr      nz,aiDeathLordAfterToggle
+        ld      c,a
+        ld      a,(ix+E_FLAGS)
+        xor     %00000010
+        ld      (ix+E_FLAGS),a
+        ld      a,c
+aiDeathLordAfterToggle:
+        LDHLA()
+        ld      de,deathLordVert
+        add     hl,de
+        bit     1,(ix+E_FLAGS)
+        ld      a,(hl)
+        jr      nz,aiDeathLordVert
+        neg
+aiDeathLordVert:
+        add     a,(ix+E_Y)
+        ld      (ix+E_Y),a
+        ret
+
+;------------------------------------------------
+; aiKoranda - chase the player every 2nd frame with no wall clipping, and occasionally shoot
+;   uses:   enemyFollow
+;           enemyShoot
+;------------------------------------------------
+aiKoranda:
+        ld      a,(frame)
+        bit     0,a
+        call    z,enemyFollowNoClip
+        ld      b,200
+        call    random
+        or      a
+        ret     nz
+        ld      hl,getAngle
+        ld      (__enemyShootAngle),hl
+        jp      enemyShoot
+
+
+
+
+; below are common routines used by various AI scripts
+
+;------------------------------------------------
+; enemyWander - enemy wanders around in any cardinal direction
+;------------------------------------------------
+enemyWander:
+        call    enemySetClip
+enemyWanderCommon:
+        xor     a
+        ld      (dirFlags),a
+        call    checkEnemyTileAligned
+        jp      nz,moveEnemyDir                 ; if enemy is not tile aligned, continue moving in the direction they're facing
+        ; pick a new direction and try to move in it (with a chance enemy will decide to stay idle)
+        ld      b,6
+        call    random                          ; 0 <= A <= 5
+        or      a
+        jp      z,moveEnemyUp
+        dec     a
+        jp      z,moveEnemyDown
+        dec     a
+        jp      z,moveEnemyLeft
+        dec     a
+        jp      z,moveEnemyRight
+        ret
+
+;------------------------------------------------
+; enemyWanderNoClip - enemy wanders around in any cardinal direction without wall clipping
+;------------------------------------------------
+enemyWanderNoClip:
+        call    enemySetNoClip
+        jr      enemyWanderCommon
+
+;------------------------------------------------
+; enemyFollow - enemy follows the player
+;------------------------------------------------
+enemyFollow:
+        call    enemySetClip
+enemyFollowCommon:
+        xor     a
+        ld      (dirFlags),a
+        call    checkEnemyTileAligned
+        jp      nz,moveEnemyDir                 ; if enemy is not tile aligned, continue moving in the direction they're facing
+        ; pick a new direction based on player position
+        ; get x-axis position difference
+        ld      a,(x)
+        sub     (ix+E_X)
+        ld      d,a
+        ABSA()
+        ld      b,a
+        ; get y-axis position difference
+        ld      a,(y)
+        sub     (ix+E_Y)
+        ld      e,a
+        ABSA()
+        ; which is bigger?
+        push    de                              ; save x & y differences for later
+        ld      hl,enemyFollow1stAttempt        ; RET location for first move attempt
+        cp      b
+        jr      nc,enemyFollowVert              ; if y difference is bigger, try to move vertical
+enemyFollowHoriz:
+        ; going to try to move horizontally, check if left or right
+        ld      b,0                             ; B = moving horizontally
+        push    bc                              ; save it
+        bit     7,d
+        ld      a,3
+        jr      z,enemyFollowTryMove
+        ld      a,2
+        jr      enemyFollowTryMove
+enemyFollowVert:
+        ; going to try to move vertically, check if up or down
+        ld      b,1                             ; B = moving vertically
+        push    bc
+        bit     7,e
+        ld      a,1
+        jr      z,enemyFollowTryMove
+        xor     a
+
+enemyFollowTryMove:
+        push    hl                              ; where to RET to after trying to move
+        or      a
+        jp      z,moveEnemyUp
+        dec     a
+        jp      z,moveEnemyDown
+        dec     a
+        jp      z,moveEnemyLeft
+        jp      moveEnemyRight
+
+enemyFollow1stAttempt:
+        pop     bc                              ; B = axis flag
+        pop     de                              ; D = x diff, E = y diff
+        ret     nc                              ; if moved successfully, nothing else to do
+        ld      hl,enemyFollow2ndAttempt
+        push    hl                              ; where to RET to after trying to move a 2nd time
+        ld      a,b
+        or      a
+        jr      z,enemyFollowVert
+        jr      enemyFollowHoriz
+
+enemyFollow2ndAttempt:
+        pop     bc                              ; clear stack
+        ret     nc                              ; if moved successfully, nothing else to do
+        ; if execution gets here, the enemy has tried and failed to move closer to the player on both axes
+        ; whichever two directions were attemped will have had their bits set in dirFlags
+        call    moveEnemyUp
+        call    c,moveEnemyDown
+        call    c,moveEnemyLeft
+        call    c,moveEnemyRight
+        ret
+
+;------------------------------------------------
+; enemyFollowNoClip - enemy follows the player without wall clipping
+;------------------------------------------------
+enemyFollowNoClip:
+        call    enemySetNoClip
+        jp      enemyFollowCommon
+
+;------------------------------------------------
+; enemyShoot - try to shoot at the player
+;   uses:   (__enemyShootAngle) should be either getAngle or getAngleCardinal
+;------------------------------------------------
+enemyShoot:
         call    getEmptyBulletEntry
         ret     c
-        ld      a,(x)
-        sub     (ix+E_X)
-        jr      nc,ais4AbsX
-        neg
-ais4AbsX:
-        cp      10
-        jr      nc,ais4TryY
-        ld      a,(y)
-        sub     (ix+E_Y)
-        ld      a,16
-        jr      nc,ais4IniShoot
-        ld      a,15
-        jr      ais4IniShoot
-ais4TryY:
-        ld      a,(y)
-        sub     (ix+E_Y)
-        jr      nc,ais4AbsY
-        neg
-ais4AbsY:
-        cp      10
-        ret     nc
-        ld      a,(x)
-        sub     (ix+E_X)
-        ld      a,14
-        jr      nc,ais4IniShoot
-        ld      a,13
-ais4IniShoot:
+        push    hl
+__enemyShootAngle       = $+1
+        call    $000000
+        pop     hl
+        inc     a
         ld      (hl),a
         inc     hl
         ld      a,(ix+E_X)
+        inc     a
         ld      (hl),a
         inc     hl
         ld      a,(ix+E_Y)
+        inc     a
         ld      (hl),a
         ret
 
 ;------------------------------------------------
-; aiHorizMove - Horizontal swaying movement
+; enemyJump - occasionally jump in place (used by snakes, octopii and endgame pigmy skeletons
+;   uses:   E_JUMPCNT (counter for jumpTable)
 ;------------------------------------------------
-aiHorizMove:
-        call    checkEnemySpeed
-        ret     nz
-        ld      a,(aiCnt)
+enemyJump:
+        ld      a,(ix+E_JUMPCNT)
         or      a
-        jr      z,newHorizFin
-        call    checkEnemyOnScreen
-        jr      nc,horizOnScreen
-        ld      (ix+E_DIR),0
-        ret
-horizOnScreen:
-        ld      c,(ix+E_DIR)
-        dec     c
-        bit     1,c
-        ld      a,1
-        jr      z,afterNegHorizX
-        neg
-afterNegHorizX:
-        add     a,(ix+E_X)
-        ld      (ix+E_X),a
-        ld      de,horizMoveTable1
-        ld      b,HORIZ_MAX_1+1
-        bit     0,c
-        jr      z,afterSelectHorizTable
-        ld      de,horizMoveTable2
-        ld      b,HORIZ_MAX_2+1
-afterSelectHorizTable:
-        ld      a,(aiCnt)
-        dec     a
-        or a \ sbc hl,hl \ ld l,a
+        jr      nz,enemyJumpContinue
+        ld      b,40
+        call    random
+        or      a                               ; 1-in-B chance of jumping
+        ret     nz
+        ; A = 0 here for the first jump frame
+enemyJumpContinue:
+        LDHLA()
+        ld      de,jumpTable
         add     hl,de
         ld      a,(hl)
         add     a,(ix+E_Y)
         ld      (ix+E_Y),a
-        ld      hl,aiCnt
-        inc     (hl)
-        ld      a,(hl)
-        cp      b
+        inc     (ix+E_JUMPCNT)
+        ld      a,(ix+E_JUMPCNT)
+        cp      JUMP_MAX
         ret     c
-        ld      (hl),1
-        ret
-newHorizFin:
-        ld      a,1
-        ld      (aiCnt),a
-        ld      b,2
-        call    random
-        ld      c,a
-        ld      a,(x)
-        sub     (ix+E_X)
-        jr      nc,setNewHoriz
-        set     1,c
-setNewHoriz:
-        inc     c
-        ld      (ix+E_DIR),c
+        ld      (ix+E_JUMPCNT),0
         ret
 
 ;------------------------------------------------
-; aiWait - Pause enemy for a few moments
+; checkEnemyTileAligned - check if enemy is tile aligned
+;   input:  IX => enemy entry
+;   output: IX => enemy entry
+;           Z if tile aligned, NZ if not
 ;------------------------------------------------
-aiWait:
-        ld      a,(frame)
-        and     (ix+E_SPEED)
-        ret     nz
-        ld      a,(aiOff)
-        or      a                               ; Has other AI slot already been disabled?
-        jr      z,checkReadyWait                ; If not, check to see if it's time to wait ;)
-        ld      hl,aiCnt
-        inc     (hl)                            ; Increment AI counter
-        ld      a,(hl)
-        cp      8                               ; Have we waited long enough?
-        ret     c                               ; If not, don't re-enable other AI slot
-        xor     a
-        ld      (aiOff),a                       ; Otherwise, re-enable other AI slot
-        ret                                     ; And leave
-checkReadyWait:
-        ld      a,(aiCntOther)                  ; Get other AI counter
+checkEnemyTileAligned:
+        ld      a,(ix+E_X)
         and     %00000111
-        ret     nz                              ; If it isn't evenly divisible by 8, don't start waiting
-        ld      (aiCnt),a                       ; Reset this AI counter
-        inc     a
-        ld      (aiOff),a                       ; Disable other AI slot
+        ret     nz
+        ld      a,(ix+E_Y)
+        and     %00000111
         ret
 
 ;------------------------------------------------
-; Pointers to all AI scripts
+; moveEnemyDir - move enemy in a cardinal direction according to direction value
+;   input:  IX => enemy entry
+;   output: IX => enemy entry
 ;------------------------------------------------
-aiTable:
-.dl     aiFollowPlayer,aiFollowPlayerHitWalls,aiCircular,aiShoot,aiJump
-.dl     aiRandomMovement,aiRandomMovementHitWalls,aiFrogMove,aiShoot4Dir,aiHorizMove
-.dl     aiWait
+moveEnemyDir:
+        ld      a,(ix+E_DIR)
+        dec     a
+        jp      z,moveEnemyUp
+        dec     a
+        jp      z,moveEnemyDown
+        dec     a
+        jp      z,moveEnemyLeft
+        dec     a
+        jp      z,moveEnemyRight
+        ret
+
+;------------------------------------------------
+; moveEnemyUp - try to move an enemy up
+;   input:  IX => Start of enemy entry
+;   output: IX => Start of enemy entry
+;           CA = 1 if couldn't move
+;------------------------------------------------
+moveEnemyUp:
+        ld      hl,dirFlags
+        bit     0,(hl)
+        scf
+        set     0,(hl)
+        ret     nz                              ; leave if this direction has already been attempted, with carry set to signify move failed
+        ld      a,(ix+E_X)
+        ld      l,(ix+E_Y)
+        dec     l
+        call    enemyGetTile
+        cp      ENEMY_WALL
+        ccf
+        ret     c
+        ld      a,(ix+E_X)
+        add     a,7
+        ld      l,(ix+E_Y)
+        dec     l
+        call    enemyGetTile
+        cp      ENEMY_WALL
+        ccf
+        ret     c
+        dec     (ix+E_Y)
+        ld      (ix+E_DIR),1
+        or      a
+        ret
+
+;------------------------------------------------
+; moveEnemyDown - try to move an enemy down
+;   input:  IX => Start of enemy entry
+;   output: IX => Start of enemy entry
+;           CA = 1 if couldn't move
+;------------------------------------------------
+moveEnemyDown:
+        ld      hl,dirFlags
+        bit     1,(hl)
+        scf
+        set     1,(hl)
+        ret     nz
+        ld      a,(ix+E_Y)
+        add     a,8
+        ld      l,a
+        ld      a,(ix+E_X)
+        call    enemyGetTile
+        cp      ENEMY_WALL
+        ccf
+        ret     c
+        ld      a,(ix+E_Y)
+        add     a,8
+        ld      l,a
+        ld      a,(ix+E_X)
+        add     a,7
+        call    enemyGetTile
+        cp      ENEMY_WALL
+        ccf
+        ret     c
+        inc     (ix+E_Y)
+        ld      (ix+E_DIR),2
+        or      a
+        ret
+
+;------------------------------------------------
+; moveEnemyLeft - try to move an enemy left
+;   input:  IX => Start of enemy entry
+;   output: IX => Start of enemy entry
+;           CA = 1 if couldn't move
+;------------------------------------------------
+moveEnemyLeft:
+        ld      hl,dirFlags
+        bit     2,(hl)
+        scf
+        set     2,(hl)
+        ret     nz
+        ld      a,(ix+E_X)
+        dec     a
+        ld      l,(ix+E_Y)
+        call    enemyGetTile
+        cp      ENEMY_WALL
+        ccf
+        ret     c
+        ld      a,(ix+E_Y)
+        add     a,7
+        ld      l,a
+        ld      a,(ix+E_X)
+        dec     a
+        call    enemyGetTile
+        cp      ENEMY_WALL
+        ccf
+        ret     c
+        dec     (ix+E_X)
+        ld      (ix+E_DIR),3
+        or      a
+        ret
+
+;------------------------------------------------
+; moveEnemyRight - try to move an enemy right
+;   input:  IX => Start of enemy entry
+;   output: IX => Start of enemy entry
+;           CA = 1 if couldn't move
+;------------------------------------------------
+moveEnemyRight:
+        ld      hl,dirFlags
+        bit     3,(hl)
+        scf
+        set     3,(hl)
+        ret     nz
+        ld      a,(ix+E_X)
+        add     a,8
+        ld      l,(ix+E_Y)
+        call    enemyGetTile
+        cp      ENEMY_WALL
+        ccf
+        ret     c
+        ld      a,(ix+E_Y)
+        add     a,7
+        ld      l,a
+        ld      a,(ix+E_X)
+        add     a,8
+        call    enemyGetTile
+        cp      ENEMY_WALL
+        ccf
+        ret     c
+        inc     (ix+E_X)
+        ld      (ix+E_DIR),4
+        or      a
+        ret
+
+;------------------------------------------------
+; enemySetClip - modify enemyGetTile for wall clipping
+;   input:  none
+;   output: none
+;------------------------------------------------
+enemySetClip:
+        xor     a
+        ld      (__enemyGetTile),a              ; load "nop"
+        ret
+
+;------------------------------------------------
+; enemySetNoClip - modify enemyGetTile for NO wall clipping
+;   input:  none
+;   output: none
+;------------------------------------------------
+enemySetNoClip:
+        ld      a,OP_XOR_A
+        ld      (__enemyGetTile),a              ; load "xor a"
+        ret
+
+;------------------------------------------------
+; enemyGetTile - same as getTile, but can be hacked for flying enemies
+;   input:  A = X Coord
+;           L = Y Coord
+;   output: HL => Tile
+;           A = Tile
+;------------------------------------------------
+enemyGetTile:
+        call    getTile
+__enemyGetTile          = $
+        nop                                     ; this instruction can be changed to "xor a" for flying enemies
+        ret
+
+;------------------------------------------------
+; despawnOffScreen - despawn enemy if off screen
+;   input:  IX => enemy entry
+;   output: IX => enemy entry
+;           CA = 1 if enemy was despawned
+;------------------------------------------------
+despawnOffScreen:
+        call    checkEnemyOnScreen
+        ret     nc
+        ld      (ix+E_DIR),0
+        ret
+
+;------------------------------------------------
+; enemyDirToFrame - convert E_DIR value to E_FRAME value
+;   input:  IX => enemy entry
+;   output: IX => enemy entry
+;------------------------------------------------
+enemyDirToFrame:
+        ld      a,(ix+E_DIR)
+        dec     a
+        ld      (ix+E_FRAME),a
+        ret
 
 .end

@@ -13,16 +13,16 @@ checkAreaName:
         or      a                               ; Check if it's 0
         jr      z,mainLoop                      ; If so, no area name
         cp      b                               ; Check to see if still in same area
-        call    nz,showAreaName                 ; If not, show area name
+        jr      z,mainLoop
+        DRAW_AREA_NAME()
 
 mainLoop:
-        ld      a,(demon)                       ; Check if player is abt to fight a demon
-        or      a
-        jp      nz,iniDemon                     ; If so, initialise and DO IT!
-
         ld      hl,frame
         inc     (hl)
-        
+
+        ld      hl,mainLoop
+        ld      (__pauseJump),hl
+
         ld      hl,hurt
         ld      a,(hl)
         or      a
@@ -30,8 +30,6 @@ mainLoop:
         dec     (hl)
 
         call    animateMap
-
-        call    copyBuffers
 
         call    keyScan                         ; do a key scan
 
@@ -84,10 +82,14 @@ afterPlayerMovement:
 afterCheckPeopleChests:
         ld      a,(kbdG6)
         bit     kbitClear,a
-        jp      nz,quit
+        jp      nz,saveGame
         ld      a,(kbdG1)
         bit     kbitMode,a
-        jp      nz,showInventoryScreen
+        jp      nz,pauseGame
+#ifdef GOLD_GIVE
+        bit     kbitDel,a
+        call    nz,goldGive
+#endif
         bit     kbit2nd,a
         ld      hl,afterAttacking
         jp      nz,tryAttacking
@@ -100,15 +102,20 @@ afterAttacking:
         jr      z,afterCheckStones
         inc     a
         jr      z,afterCheckStones
+        cp      INI_ATTACK+1
+        jr      nz,afterCheckStones             ; can only break stones during first frame of attack
         ld      a,(ringOfMight)                 ; Check if player has Ring Of Might
         or      a
         jr      z,afterCheckStones              ; If not, can't crush anything
-        ld      bc,3                            ; BC = 3 tiles to check
+        ld      bc,6                            ; BC = 6 tiles to check
+        ld      hl,replaceStoneRockTiles+6
         ld      a,(ringOfThunder)               ; Check if player has Ring Of Thunder
         or      a
         jr      z,checkStones                   ; If not, only check stone tiles
-        ld      bc,6                            ; Otherwise, 6 tiles to check (3 stone, 3 rock)
+        ld      bc,12                            ; Otherwise, 12 tiles to check (6 stone, 6 rock)
+        ld      hl,replaceStoneRockTiles
 checkStones:
+        push    hl
         push    bc                              ; Save for later usage
         ld      a,(playerDir)
         add     a,a
@@ -132,8 +139,8 @@ checkStones:
         ld      hl,stoneRockTiles
         pop     bc                              ; BC = Number of tiles to check, depending on which Ring player has
         cpir
+        pop     hl
         jr      nz,afterCheckStones
-        ld      hl,replaceStoneRockTiles
         add     hl,bc
         ld      a,(hl)
         ld      (de),a
@@ -154,9 +161,8 @@ __stoneCoords                           = $+1
         add     a,h
         ld      c,a
         ld      a,b
-        call    animateMapSprite
 afterCheckStones:
-; Check warps
+        ; check warps
         ld      a,(numWarps)
         or      a
         jr      z,afterCheckWarps
@@ -171,29 +177,67 @@ checkWarps:
         djnz    checkWarps
 afterCheckWarps:
         ld      a,(frame)                       ; Get frame counter
-        and     $0F                             ; Only try this on every 16th frame
+__enemySpawn            = $+1
+        and     $0F                             ; Only try this on every 16th frame (every 8th frame on Hard/Hell difficulties)
         call    z,makeEnemy                     ; Try making an enemy
 
-        ld      a,(frame)
-        bit     0,a
-        call    z,moveBullets                   ; Move enemy bullets (every 2nd frame)
+        call    moveBullets                     ; Move enemy bullets
         call    moveEnemies                     ; Move enemies
         call    updateAnims                     ; Update animations
 
+        call    checkSwordEnemyCollisions       ; Check sword/enemy collisions
         call    checkPlayerEnemyCollisions      ; Check player/enemy collisions
         call    checkPlayerBulletCollisions     ; Check player/bullet collisions
-        call    checkSwordEnemyCollisions       ; Check sword/enemy collisions
+        call    checkPlayerOrbCollisions        ; check player/health orb collisions
 
-        call    drawBullets                     ; Draw enemy bullets
+        call    drawMap                         ; draw the map
+        call    drawOrbs                        ; draw health orbs
         call    drawEnemies                     ; Draw enemies
+        call    drawBullets                     ; Draw enemy bullets
         call    drawAnims                       ; Draw animations
         call    drawPlayer                      ; Draw player
+        
+__redrawHud             = $+1
+        ld      a,2
+        or      a
+        call    nz,drawHud                      ; draw the HUD, but only if there is a need (to reduce chance of frame lag)
+        
+__drawAreaName          = $+1
+        ld      a,$00
+        or      a
+        call    nz,drawAreaName                 ; draw the area name if we recently entered a new area
 
-        call    showGray                        ; Copy finished frame to LCD
+        call    vramFlip                        ; flip vbuf to lcd
 
         ld      a,(hearts)
         or      a
         jp      nz,mainLoop                     ; Can only keep playing if still alive!
         jp      playerDead
+
+;------------------------------------------------
+; pauseGame - not sure what this does?
+;   input:  none
+;   output: none
+;------------------------------------------------
+pauseGame:
+        call    vramCopy
+        ld      de,80*256+50
+        ld      bc,60*256+60
+        ld      a,COLOUR_REDGREY
+        call    drawWindow
+        ld      de,136
+        ld      c,106
+        ld      hl,strPaused
+        call    drawString
+        call    vramFlip
+pauseLoop:
+        call    waitKey
+        cp      GK_2ND
+        jr      z,pauseDone
+        cp      GK_ENTER
+        jr      nz,pauseGame
+pauseDone:
+__pauseJump             = $+1
+        jp      mainLoop
 
 .end

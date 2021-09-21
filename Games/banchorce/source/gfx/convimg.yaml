@@ -1,0 +1,82 @@
+palettes:
+  - name: bancpal
+    fixed-entries:
+        - image: bancpal.png
+  - name: fontpal
+    fixed-entries:
+        - image: fontpal.png
+
+converts:
+  - name: title
+    palette: bancpal
+    width-and-height: false
+    images:
+      - title.png
+  - name: sprites
+    palette: bancpal
+    width-and-height: false
+    tilesets:
+        tile-width: 8
+        tile-height: 8
+        pointer-table: false
+        images:
+          - tileset.png
+          - sprplayer.png
+          - sprknight.png
+          - sproctopus.png
+          - sprpotatobug.png
+          - sprjellyfish.png
+          - sprbat.png
+          - sprsnake.png
+          - sprbee.png
+          - sprfrog.png
+          - sprspider.png
+          - sprmummy.png
+          - sprpigmy.png
+          - sprtroll.png
+          - sprmudman.png
+          - sprtreemonster.png
+          - sprshadow.png
+          - sprdeathlord.png
+          - sprkoranda.png
+          - sprspawn.png
+          - sprbullet.png
+          - sprexplosion.png
+          - sprorb.png
+          - sprhud.png
+          - tiles_boss_walls.png
+          - tiles_boss_1.png
+          - tiles_boss_2.png
+          - tiles_boss_3.png
+          - tiles_boss_4.png
+          - tiles_boss_5.png
+          - tiles_boss_6.png
+          - tiles_boss_7.png
+          - tiles_boss_8.png
+          - sprboss1.png
+          - sprboss2.png
+          - sprboss3.png
+          - sprboss4.png
+          - sprboss5.png
+          - sprboss6.png
+          - sprboss7.png
+          - sprboss8.png
+  - name: fontarc
+    palette: fontpal
+    width-and-height: false
+    tilesets:
+        tile-width: 7
+        tile-height: 7
+        pointer-table: false
+        images:
+          - fontarc.png
+
+outputs:
+  - type: bin
+    palettes:
+      - bancpal
+    converts:
+      - title
+      - sprites
+      - fontarc
+    prepend-palette-sizes: false

@@ -6,10 +6,9 @@
 ;---------------------------------------------------------------;
 
 ;------------------------------------------------
-; checkPeople - Check to see if player can talk to a person
-;
-; Input:    None
-; Output:   None
+; checkPeople - check to see if player can talk to a person
+;   input:  none
+;   output: none
 ;------------------------------------------------
 checkPeople:
         ld      a,(playerDir)
@@ -21,7 +20,7 @@ checkPeople:
         ld      b,a                             ; B = Number of ppl on screen
 
         ld      a,(playerOffset)
-        sub     16
+        sub     COLS
         ld      c,a                             ; C = Offset in map
         ld      hl,people                       ; HL => People data
 checkPeopleLoop:
@@ -32,7 +31,6 @@ checkPeopleLoop:
         ld      a,(hl)                          ; A = Text message number
         pop     de                              ; Remove now-redundant stack data
         call    textMessage                     ; Talk to the person
-        call    grayDrawMap                     ; Re-draw the screen
         jp      mainLoop                        ; And proceed with the game
 notTalkingToPerson:
         inc     hl
@@ -41,10 +39,10 @@ notTalkingToPerson:
         ret
 
 ;------------------------------------------------
-; textMessage - Show a text message
-;
-; Input:    A = Text message to show
-; Output:   NZ = 1 if a "YES" choice was made
+; textMessage - show a text message
+;   input:  A = Text message to show
+;   output: NZ = 1 if a "YES" choice was made
+;   notes:  if HL already points to text data, call "textMessageFound"
 ;------------------------------------------------
 textMessage:
         ld      hl,endTextMessage               ; HL => Where to RET to after finished talking
@@ -60,37 +58,41 @@ findTextMessage:
         jr      nz,findTextMessage
         djnz    findTextMessage
 textMessageFound:
-        push    hl
-        ld      hl,talkMap
-        call    grayDrawTileMap
+        push    hl                              ; HL => text data
+        call    vramCopy
+        ld      de,60*256+0
+        ld      bc,160*256+120
+        ld      a,COLOUR_GREENGREY
+        call    drawWindow
+        call    vramFlip
+        call    vramCopy
         pop     hl
-
-        ld      de,5*256+6
-        ld      b,0
+        ld      c,70
 writeTextLine:
+        ld      de,16
         ld      a,(hl)
         inc     a
         jr      z,textMessageFinished
         inc     a
         jr      z,prepareForTextChoice
         push    bc
-        call    putString
+        call    drawString
         pop     bc
-        inc     b
-        ld      a,b
-        cp      8
-        jr      z,waitNextTextPage
-        ld      a,d
-        add     a,6
-        ld      d,a
-        ld      e,6
+        ld      a,10
+        add     a,c
+        cp      165
+        jr      nc,waitNextTextPage
+        ld      c,a
         jr      writeTextLine
+        
 prepareForTextChoice:
-        ld      de,53*256+6                     ; DE = New cursor position
-        ld      hl,strYesNo
-        call    putString                       ; Write "YES"
-        ld      e,114                           ; E = New _pencol position
-        call    putString                       ; Write "NO"
+        ld      de,8
+        ld      c,166
+        ld      hl,strYes
+        call    drawString
+        ld      de,297
+        ld      c,166
+        call    drawString
         ld      a,$80
 textMessageFinished:
         add     a,$37
@@ -101,8 +103,7 @@ __textChoice                            = $
         jr      c,noTextChoice
         xor     a
         ld      (choice),a
-        call    copyBuffers
-        call    showGray
+        call    vramFlip
 textChoiceLoop:
         call    waitKey
         cp      GK_F5                           ; Was [F5] pressed?
@@ -118,15 +119,27 @@ waitNextTextPage:
         pop     hl
         jp      textMessageFound
 noTextChoice:
-        call    copyBuffers
-        call    showGray
+        call    vramFlip
+noTextChoiceWait:
         call    waitKey                         ; Wait for a keypress
         cp      GK_2ND
         ret     z
         cp      GK_ENTER                        ; Was it [ENTER]
-        jr      nz,noTextChoice                 ; If not, loop again
+        jr      nz,noTextChoiceWait             ; If not, loop again
         ret
 endTextMessage:
+        push    af                              ; Z/NZ flag needs to be preserved
+        ; clear the text box (twice, to get both buffers)
+        ld      de,60*256+0
+        ld      bc,160*256+120
+        ld      a,COLOUR_BLACK
+        call    fillRect
+        call    vramFlip
+        ld      de,60*256+0
+        ld      bc,160*256+120
+        ld      a,COLOUR_BLACK
+        call    fillRect
+        pop     af
         ret
 
 .end

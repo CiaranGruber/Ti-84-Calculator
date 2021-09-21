@@ -2,7 +2,7 @@
 	#define db .db
 	#define dw .dw
 	#define dl .dl
-	#include "GeometryDash_Data\ti84pce.inc"
+	#include "include/ti84pce.inc"
 	#macro bcall(x)
 		call x
 	#endmacro
@@ -99,12 +99,12 @@
 	#DEFINE FLG_alrdyErased	7 ; flag ()
 	;	asm_flag2
 	#DEFINE FLG_pauseLeft	0 ; flag ()
-	#DEFINE FLG_noLevel		1 ; flag (if there's no level on the calc)
+	#DEFINE FLG_noLevel		1 ; MENU flag (if there's no level on the calc)
 	#DEFINE FLG_jmpUsed		2 ; flag (prevent sprite from jumping on a yellow tile if user did not re-pressed 2nde)
 	#DEFINE FLG_sphpAvlble	3 ; flag (COMPATIBILITÉ AVEC ANCIENNE VERSION (sans vaisseau spatial))
-	#DEFINE FLG_2dePartName	4 ; flag (used when choosing the name of the level that is being created)
+	#DEFINE FLG_2dePartName	4 ; MENU flag (used when choosing the name of the level that is being created)
 	#DEFINE FLG_inEditorMode 5; flag (1=editing a level)
-	;#DEFINE FLG_colorTRS	5 ; flag ()
+	;#DEFINE FLG_colorTRS	6 ; flag ()
 .list
 	.org userMem-2
 	.db tExtTok,tAsm84CeCmp
@@ -897,6 +897,8 @@ fillingPlayLevel:
 
 
 addHighScore:
+	bit FLG_inEditorMode, (iy+asm_flag2)
+	ret nz
 	push af
 	ld hl,AppvarStoreScore
 	call _mov9ToOp1
@@ -1183,11 +1185,11 @@ ERR_needMenu:
 ;		- remplacer les particules par des pixels transparents aux trampolines
 ;		- Lancer le compresseur
 
-#include "graphicFuncs.z80"
-#include "game.z80"
-#include "endlevel.z80"
-#include "gdcreator.z80"
-#include "data.z80"
+#include "src/graphicFuncs.z80"
+#include "src/game.z80"
+#include "src/endlevel.z80"
+#include "src/gdcreator.z80"
+#include "src/data.z80"
 
 .echo "Size : ", $ - start
 .end

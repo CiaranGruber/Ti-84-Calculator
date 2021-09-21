@@ -1,0 +1,4 @@
+In the "source" folder is the source code and graphics for Banchor: Legend of the Hellspawn. Feel free to use any of the code, as long as you give credit where due.
+
+You will require SPASM-ng to build this game, which can be found here:
+https://github.com/alberthdev/spasm-ng/releases

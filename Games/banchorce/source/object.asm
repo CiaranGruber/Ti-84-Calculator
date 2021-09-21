@@ -7,18 +7,17 @@
 
 ;------------------------------------------------
 ; checkObjectOnScreen - Check to see if an object is on the screen
-;
-; Input:    HL => X, Y Coords
+;   input:  HL => X, Y Coords
 ;           A = -(Width-1)
 ;           B = -(Height-1)
-; Output:   CA = 1 if object isn't on the screen
+;   output: CA = 1 if object isn't on the screen
 ;------------------------------------------------
 checkObjectOnScreen:
         ld      (__objectWidth),a
         ld      a,b
         ld      (__objectHeight),a
         ld      a,(hl)
-        cp      127
+        cp      COLS*8-1
         jr      c,objectXOK
 __objectWidth                           = $+1
         cp      $00
@@ -26,7 +25,7 @@ __objectWidth                           = $+1
 objectXOK:
         inc     hl
         ld      a,(hl)
-        cp      63
+        cp      ROWS*8-1
         jr      c,objectOnScreen
 __objectHeight                          = $+1
         cp      $00
@@ -40,12 +39,11 @@ objectNotOnScreen:
 
 ;------------------------------------------------
 ; checkCollision - Check for collisions between two objects
-;
-; Author:   Patrick Davidson (http://pad.calc.org)
+;   author: Patrick Davidson
 ;           Modified slightly by James Vernon
-; Input:    (collide1) = Object 1 [x, width, y, height]
+;   input:  (collide1) = Object 1 [x, width, y, height]
 ;           (collide2) = Object 2 [x, width, y, height]
-; Output:   CA = 1 if they are colliding
+;   output: CA = 1 if they are colliding
 ;------------------------------------------------
 checkCollision:
         ld      hl,collide1
@@ -78,9 +76,8 @@ checkCollision3:
 
 ;------------------------------------------------
 ; checkPlayerEnemyCollisions - Check for collisions between the player and the enemies
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 checkPlayerEnemyCollisions:
         call    loadPlayerToCollide1
@@ -96,7 +93,7 @@ checkPECollisions:
         jr      nc,endCheckPECollisions
         ld      l,(ix+E_DIR)
         bit     7,l
-        jr      nz,stopEnemyBeingCreated
+        jr      nz,stopEnemySpawning
 #ifndef INVINCIBLE
         ld      a,(hurt)
         or      a
@@ -118,19 +115,18 @@ endCheckPECollisions:
         add     ix,de
         djnz    checkPECollisions
         ret
-stopEnemyBeingCreated:
+stopEnemySpawning:
         ld      (ix+E_DIR),0
         jr      endCheckPECollisions
 
 ;------------------------------------------------
-; checkPlayerBulletCollisions - Check for collisions between Cain and any bullets
-;
-; Input:    None
-; Output:   None
+; checkPlayerBulletCollisions - Check for collisions between player and any bullets
+;   input:  none
+;   output: none
 ;------------------------------------------------
 checkPlayerBulletCollisions:
         call    loadPlayerToCollide1
-        ld      b,3
+        ld      b,MAX_BULLETS
         ld      ix,bulletTable
 checkPBCollisions:
         push    bc
@@ -171,14 +167,47 @@ endCheckPBCollisions:
         djnz    checkPBCollisions
         ret
 blockBullet:
-        ld      (ix+B_DIR),0
+        ld      a,(ix+B_DIR)
+        bit     7,a
+        jr      nz,endCheckPBCollisions
+        dec     a
+        add     a,8
+        and     $0F
+        inc     a
+        or      %10000000                       ; set bit 7 which means bullet has been deflected (can only be deflected once)
+        ld      (ix+B_DIR),a
         jr      endCheckPBCollisions
 
 ;------------------------------------------------
+; checkPlayerOrbCollisions - check for collisions between player and health orbs
+;   input:  none
+;   output: none
+;------------------------------------------------
+checkPlayerOrbCollisions:
+        call    loadPlayerToCollide1
+        ld      b,MAX_HEALTH_ORBS
+        ld      ix,orbTable
+checkPOCollisions:
+        push    bc
+        ld      a,(ix+O_COUNT)
+        or      a
+        jr      z,endCheckPOCollisions
+        call    loadBulletToCollide2            ; health orbs and bullets are same size and store their x/y the same
+        call    checkCollision
+        jr      nc,endCheckPOCollisions
+        ld      (ix+O_COUNT),0
+        call    healHalfHeart
+endCheckPOCollisions:
+        pop     bc
+        ld      de,ORB_ENTRY_SIZE
+        add     ix,de
+        djnz    checkPOCollisions
+        ret
+
+;------------------------------------------------
 ; checkSwordEnemyCollisions - Check for collisions between player's sword and his enemies
-;
-; Input:    None
-; Output:   None
+;   input:  none
+;   output: none
 ;------------------------------------------------
 checkSwordEnemyCollisions:
         call    loadSwordToCollide1
@@ -198,7 +227,7 @@ checkSECollisions:
         call    checkCollision
         jr      nc,notHurtingEnemy
         bit     7,(ix+E_DIR)
-        jr      nz,killEnemy
+        jr      nz,killEnemy                    ; if enemy is spawning, kill it with no explosion animation
         ld      (ix+E_HURT),1
         ld      hl,attackStrength
         ld      a,(ix+E_HEALTH)
@@ -217,6 +246,22 @@ checkSECollisions:
         ld      b,(ix+E_X)
         ld      c,(ix+E_Y)
         call    newAnim
+        ; random chance for health orb to spawn
+        ld      b,ORB_CHANCE
+        call    random
+        or      a
+        jr      nz,killEnemy
+        call    getEmptyOrbEntry
+        jr      c,killEnemy
+        ld      (hl),INI_ORB_COUNT
+        inc     hl
+        ld      a,(ix+E_X)
+        inc     a
+        ld      (hl),a
+        inc     hl
+        ld      a,(ix+E_Y)
+        inc     a
+        ld      (hl),a
 killEnemy:
         ld      (ix+E_DIR),0
         jr      endCheckSECollisions
@@ -226,7 +271,8 @@ endCheckSECollisions:
         pop     bc
         ld      de,ENEMY_ENTRY_SIZE
         add     ix,de
-        djnz    checkSECollisions
+        dec     b
+        jp      nz,checkSECollisions
         ret
 
 .end

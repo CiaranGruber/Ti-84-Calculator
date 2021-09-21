@@ -6,42 +6,62 @@
 ;---------------------------------------------------------------;
 
 ;------------------------------------------------
-; showAreaName - Show the current area name
-;
-; Input:    None
-; Output:   None
+; drawAreaName - draw the area name
+;   input:  A = __drawAreaName value (will always be NZ)
+;   output: none
 ;------------------------------------------------
-showAreaName:
-        ld      hl,graymem1+(28*16)
-        ld      b,16*7
-        call    _ld_hl_bz
-        ld      hl,graymem2+(28*16)
-        ld      b,16*7
-        call    _ld_hl_bz
-        
-        ld      hl,graymem1
-        ld      (__psLoc),hl
+drawAreaName:
+        ld      b,a
+        ld      a,(areaNum)
+        or      a
+        jr      z,noAreaName
+        ld      a,b
+        call    clearHud
 
-        ld      de,28*256+1
-        ld      hl,strEntering                  ; HL => String
-        call    putString                       ; Write "ENTERING "
-        push    de
-        ld      hl,(areaNum)                    ; L = Area number
+noAreaClear:
+        ; update __drawAreaName
+        dec     a
+        ld      (__drawAreaName),a
+        jr      nz,noHudRedraw
+        REDRAW_HUD()                            ; redraw HUD after showing the area name
+
+noHudRedraw:
+        ld      hl,(areaNum)
         dec     l
         ld      h,3
-        mlt     hl                              ; HL = Offset in areaNames
+        mlt     hl
         ld      de,areaNames
-        add     hl,de                           ; HL => Pointer to area name string
+        add     hl,de
         ld      de,(hl)
-        ex      de,hl                           ; HL => Area name string
+        ex      de,hl
+        call    calcStringWidth
+        push    hl                              ; save string pointer
+        ld      hl,9*8
+        add     hl,bc
+        ex      de,hl
+        ld      hl,320
+        or      a
+        sbc     hl,de
+        srl     h
+        rr      l                               ; HL = x position to use for centred area name (including the "ENTERING ")
+        ex      de,hl
+        push    de
+        ld      c,240-11
+        ld      hl,strEntering
+        ld      a,COLOUR_REDORANGE
+        call    drawStringColour
         pop     de
-        call    putString                       ; Write area name
+        ld      hl,9*8
+        add     hl,de
+        ex      de,hl
+        pop     hl
+        ld      c,240-11
+        ld      a,COLOUR_REDORANGE
+        jp      drawStringColour
 
-        ld      hl,buffer1
-        ld      (__psLoc),hl
-        
-        call    showGray
-        ld      bc,AREA_WAIT
-        jp      waitBC                          ; Wait a bit
+noAreaName:
+        ld      (__drawAreaName),a              ; A is always 0 here
+        REDRAW_HUD()
+        ret
 
 .end
